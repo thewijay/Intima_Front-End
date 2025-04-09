@@ -22,7 +22,7 @@ export default function WelcomeScreen() {
       <View style={styles.container}>
         <View style={styles.logoContainer}>
           <Image
-          source={require("../assets/images/logo.png")} alt="Logo" style={styles.logo} />
+          source={require("../assets/images/logo.png")} style={styles.logo} />
           <Text style={styles.subtitle}>
             AI-Based Sexual and Wellness Healthcare Assistant
           </Text>
