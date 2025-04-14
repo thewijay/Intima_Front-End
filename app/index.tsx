@@ -27,14 +27,28 @@ export default function WelcomeScreen() {
             AI-Based Sexual and Wellness Healthcare Assistant
           </Text>
         </View>
+      </View>
 
-        <TouchableOpacity
+    <View style={styles.container}>
+      <View style={styles.logoContainer}>
+        <Image
+          source={require("../assets/images/logo.png")} alt="Logo" style={styles.logo} />
+
+        <View style={styles.overlay}>
+            <Text style={styles.subtitle}>
+              AI-Based Sexual and Wellness Healthcare Assistant
+            </Text>
+        </View>
+      </View>
+
+      <TouchableOpacity
           style={styles.button}
           onPress={() => router.push('/login')}
         >
-          <Text style={styles.buttonText}>Get Started</Text>
-        </TouchableOpacity>
-      </View>
+        <Text style={styles.buttonText}>Get Started</Text>
+      </TouchableOpacity>
+      
+    </View>
     </ImageBackground>
   );
 }
@@ -43,12 +57,6 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
   },
-  logo: {
-    width: 300,
-    height: 300,
-    resizeMode: 'contain',
-    marginTop: 50,
-  },
   container: {
     flex: 1,
     justifyContent: 'space-between',
@@ -56,22 +64,24 @@ const styles = StyleSheet.create({
     paddingVertical: 60,
   },
   logoContainer: {
-    flex: 0.3,
-    marginTop: 60,
+    flex: 1,
     alignItems: 'center',
-    justifyContent: 'center',
+    position: 'relative',
   },
-  logoText: {
-    fontSize: 36,
-    fontWeight: 'bold',
-    color: 'white',
+  logo: {
+    marginTop: 30,
+    width: 300,
+    height: 300,
+    resizeMode: 'contain',
   },
   subtitle: {
-    fontSize: 12,
+    fontSize: 11,
     color: 'white',
-    marginTop: 0,
     textAlign: 'center',
-    paddingHorizontal: 20,
+  },
+  overlay: {
+    position: 'absolute',
+    top: '46%',
   },
   button: {
     backgroundColor: '#00ACC1', // Cyan shade

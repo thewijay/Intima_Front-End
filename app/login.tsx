@@ -28,11 +28,13 @@ export default function LoginScreen() {
       style={styles.background}
       resizeMode="cover"
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
-      >
-        <Text style={styles.title}>Welcome</Text>
+      
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={styles.container}
+    >
+    
+    <Text style={styles.title}>Welcome</Text>
 
         <TextInput
           style={styles.input}
@@ -59,6 +61,7 @@ export default function LoginScreen() {
         <TouchableOpacity onPress={handleForgotPassword}>
           <Text style={styles.linkTextForgot}>Forgot Password?</Text>
         </TouchableOpacity>
+
         <TouchableOpacity
         onPress={() => {
             try {
@@ -70,7 +73,9 @@ export default function LoginScreen() {
           }}>
           <Text style={styles.linkTextSignup}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
+
       </KeyboardAvoidingView>
+
     </ImageBackground>
   );
 }
@@ -104,7 +109,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     alignItems: 'center',
     marginBottom: 10,
-    width: '60%',
+    paddingHorizontal: 50,
     alignSelf: 'center',
   },
   buttonText: {
