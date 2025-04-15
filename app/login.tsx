@@ -22,6 +22,11 @@ export default function LoginScreen() {
     // router.push('/chat'); // Navigate to chat screen after login
   };
 
+  const handleForgotPassword = () => {
+    router.push('/forgot-password');
+  };
+  
+
   return (
     <ImageBackground
       source={require('../assets/images/background1.png')}

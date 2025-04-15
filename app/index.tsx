@@ -19,21 +19,11 @@ export default function WelcomeScreen() {
       style={styles.background}
       resizeMode="cover"
     >
-      <View style={styles.container}>
-        <View style={styles.logoContainer}>
-          <Image
-          source={require("../assets/images/logo.png")} style={styles.logo} />
-          <Text style={styles.subtitle}>
-            AI-Based Sexual and Wellness Healthcare Assistant
-          </Text>
-        </View>
-      </View>
 
     <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image
-          source={require("../assets/images/logo.png")} alt="Logo" style={styles.logo} />
-
+          source={require("../assets/images/logo.png")} style={styles.logo} />
         <View style={styles.overlay}>
             <Text style={styles.subtitle}>
               AI-Based Sexual and Wellness Healthcare Assistant
