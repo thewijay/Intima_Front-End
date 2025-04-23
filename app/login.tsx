@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { loginUser } from '../hooks/api/auth';
+import { useAuth } from '../context/AuthContext';
 import {
   View,
   Text,
@@ -10,17 +12,42 @@ import {
   Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as SecureStore from 'expo-secure-store';
+
 
 export default function LoginScreen() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { login } = useAuth();
 
-  const handleLogin = () => {
-    // TODO: add real auth logic
-    console.log('Logging in:', email, password);
-    // router.push('/chat'); // Navigate to chat screen after login
-  };
+
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert('Please enter both email and password.');
+      return;
+    }
+  
+    try {
+      const response = await loginUser(email, password);
+      console.log('Login successful:', response);
+  
+      // ✅ Make sure you're logging this to verify
+      console.log('Access token:', response.access);
+  
+      // ✅ Only pass the access token string to login()
+      await login(response.access); // NOT the whole response
+  
+      // Optional: navigate after login
+      router.push({ pathname: '/success', params: { email } });
+  
+    } catch (error: any) {
+      console.error('Login error:', error);
+      alert(error?.detail || 'Invalid credentials or server error.');
+    }
+  };  
+  
+  
 
   const handleForgotPassword = () => {
     router.push('/forgot-password');
@@ -79,6 +106,7 @@ export default function LoginScreen() {
           <Text style={styles.linkTextSignup}>Don't have an account? Sign up</Text>
         </TouchableOpacity>
 
+
       </KeyboardAvoidingView>
 
     </ImageBackground>
@@ -133,4 +161,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginBottom: 15,
     },
+    successText: {
+      color: '#4CAF50',
+      fontSize: 16,
+      textAlign: 'center',
+      marginTop: 10,
+      fontWeight: '600',
+    },    
 });

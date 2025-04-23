@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { registerUser } from '../hooks/api/auth';
+
 import {
   View,
   Text,
@@ -17,11 +19,27 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');  // Add separate state
 
-  const handleSignup = () => {
-    // TODO: add real auth logic
-    console.log('Signing up:', email);
-    // Add signup logic
+  const handleSignup = async () => {
+    if (!email || !password || !confirmPassword) {
+      alert('Please fill in all fields.');
+      return;
+    }
+  
+    if (password !== confirmPassword) {
+      alert('Passwords do not match.');
+      return;
+    }
+  
+    try {
+      const response = await registerUser(email, password, confirmPassword);
+      alert('Registration successful! Please log in.');
+      router.push('/login');
+    } catch (error: any) {
+      console.error(error);
+      alert(error?.detail || 'Something went wrong during registration.');
+    }
   };
+  
 
   return (
     <ImageBackground
