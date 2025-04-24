@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,12 +6,31 @@ import {
   TouchableOpacity,
   ImageBackground,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../context/AuthContext';
 
 
 export default function WelcomeScreen() {
     const router = useRouter();
+    const { token, loading } = useAuth();
+
+    useEffect(() => {
+      if (!loading) {
+        if (token) {
+          router.replace('/success');
+        }
+      }
+    }, [loading, token]);
+  
+    if (loading) {
+      return (
+        <View style={styles.center}>
+          <ActivityIndicator size="large" color="#00ACC1" />
+        </View>
+      );
+    }
 
   return (
     <ImageBackground
@@ -47,6 +66,11 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
   },
+  center: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },  
   container: {
     flex: 1,
     justifyContent: 'space-between',
