@@ -80,7 +80,7 @@ export default function SignupScreen() {
           onChangeText={setConfirmPassword}  // Use separate state handler
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleSignup}>
+        <TouchableOpacity style={styles.button} onPress={() => router.push('/screen1')}>
           <Text style={styles.buttonText}>Sign Up</Text>
         </TouchableOpacity>
 
