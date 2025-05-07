@@ -39,6 +39,9 @@ export default function RootLayout() {
         <Stack.Screen name="success" options={{ headerShown: false }} />
         <Stack.Screen name="forgot-password" options={{ headerShown: false }} />
         <Stack.Screen name="+not-found" />
+        <Stack.Screen name="screen1" options={{ headerShown: false }} />
+        <Stack.Screen name="screen2" options={{ headerShown: false }} />
+        <Stack.Screen name="chatscreen" options={{ headerShown: false }} />
       </Stack>
       <StatusBar style="auto" />
     </ThemeProvider>
