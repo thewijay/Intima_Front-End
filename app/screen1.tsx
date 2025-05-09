@@ -1,4 +1,12 @@
+type FormData = {
+  firstName: string
+  lastName: string
+  dob: string
+  gender: string
+  height: string
+}
 import React, { useState } from 'react'
+import * as SecureStore from 'expo-secure-store'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import {
   View,
@@ -10,15 +18,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native'
 import RNPickerSelect from 'react-native-picker-select'
 import { useRouter } from 'expo-router'
 import { Ionicons } from '@expo/vector-icons'
 
-export default function Screen1() {
+export default function Screen1Data() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
-  const [formData, setFormData] = useState({
+  const [loading, setLoading] = useState(false)
+  const [formData, setFormData] = useState<FormData>({
     firstName: '',
     lastName: '',
     dob: '',
@@ -26,13 +36,52 @@ export default function Screen1() {
     height: '',
   })
 
+  const handleNext = async () => {
+    const { firstName, lastName, dob, gender, height } = formData
+
+    if (!firstName || !lastName || !dob || gender === '') {
+      alert('Please fill in all required fields')
+      return
+    }
+
+    const heightValue = parseFloat(height)
+    if (
+      !height ||
+      isNaN(heightValue) ||
+      heightValue <= 0 ||
+      heightValue > 300
+    ) {
+      alert('Please enter a realistic height in cm')
+      return
+    }
+
+    const isValidDate = /^\d{4}-\d{2}-\d{2}$/.test(dob)
+    if (!isValidDate) {
+      alert('Date of Birth must be in YYYY-MM-DD format')
+      return
+    }
+
+    try {
+      setLoading(true) // Start loading
+      await SecureStore.setItemAsync('screen1Data', JSON.stringify(formData))
+      router.push('/screen2') // Navigate on success
+    } catch (error) {
+      alert('Something went wrong. Please try again.')
+      console.error('SecureStore error:', error)
+    } finally {
+      setLoading(false) // Stop loading
+    }
+  }
+
+
+
   return (
     <ImageBackground
-        source={require('../assets/images/background1.png')}
-        style={styles.background}
-        resizeMode="cover"
-      >
-    <SafeAreaView style={{ flex: 1}}>
+      source={require('../assets/images/background1.png')}
+      style={styles.background}
+      resizeMode="cover"
+    >
+      <SafeAreaView style={{ flex: 1 }}>
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={[
@@ -85,6 +134,7 @@ export default function Screen1() {
                   }
                   placeholder="YYYY-MM-DD"
                   placeholderTextColor="#bbb"
+                  keyboardType="numeric"
                 />
               </View>
 
@@ -102,24 +152,38 @@ export default function Screen1() {
                       color: '#bbb',
                     }}
                     items={[
-                      { label: 'Male', value: 'Male' },
-                      { label: 'Female', value: 'Female' },
-                      { label: 'Non-binary', value: 'Non-binary' },
+                      { label: 'Male', value: 'male' },
+                      { label: 'Female', value: 'female' },
+                      { label: 'Transgender Male', value: 'trans_male' },
+                      { label: 'Transgender Female', value: 'trans_female' },
                       {
-                        label: 'Prefer not to say',
-                        value: 'Prefer not to say',
+                        label: 'Non-Binary / Non-Conforming',
+                        value: 'non_binary',
                       },
+                      { label: 'Other', value: 'other' },
                     ]}
                     style={{
                       inputIOS: styles.dropdownInput,
                       inputAndroid: styles.dropdownInput,
                       iconContainer: styles.iconContainer,
                     }}
+                    useNativeAndroidPickerStyle={false}
                     Icon={() => (
                       <Ionicons name="chevron-down" size={20} color="#bbb" />
                     )}
                     value={formData.gender}
                   />
+                  {formData.gender === 'other' && (
+                    <TextInput
+                      style={styles.input}
+                      placeholder="Please specify"
+                      value={formData.gender_other}
+                      onChangeText={(text) =>
+                        setFormData({ ...formData, gender_other: text })
+                      }
+                      placeholderTextColor="#bbb"
+                    />
+                  )}
                 </View>
               </View>
 
@@ -143,13 +207,21 @@ export default function Screen1() {
           {/* Button at the bottom */}
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push('/screen2')}
+            onPress={handleNext}
+            disabled={loading}
           >
-            <Text style={styles.buttonText}>Next</Text>
+            {loading ? (
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <ActivityIndicator color="#fff" style={{ marginRight: 10 }} />
+                <Text style={styles.buttonText}>Please wait...</Text>
+              </View>
+            ) : (
+              <Text style={styles.buttonText}>Next</Text>
+            )}
           </TouchableOpacity>
         </KeyboardAvoidingView>
-    </SafeAreaView>
-      </ImageBackground>
+      </SafeAreaView>
+    </ImageBackground>
   )
 }
 
@@ -195,15 +267,20 @@ const styles = StyleSheet.create({
     borderBottomColor: '#a855f7',
     paddingVertical: 6,
   },
-  dropdownInput: {
-    color: '#fff',
-    paddingRight: 30, // space for icon
-  },
   iconContainer: {
-    top: 10,
+    top: Platform.OS === 'ios' ? 12 : 16,
     right: 10,
     position: 'absolute',
+    pointerEvents: 'none',
   },
+  dropdownInput: {
+    color: '#fff',
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    paddingRight: 30, // Ensures space for the icon
+    fontSize: 16,
+  },
+
   stepText: {
     color: '#ccc',
     textAlign: 'center',

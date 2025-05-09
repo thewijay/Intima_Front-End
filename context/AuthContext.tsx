@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const loadToken = async () => {
           if (Platform.OS !== 'web') {
-            const storedToken = await SecureStore.getItemAsync('authToken');
+            const storedToken = await SecureStore.getItemAsync('accessToken')
             if (storedToken) {
               setToken(storedToken);
             }
