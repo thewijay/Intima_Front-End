@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { loginUser } from '../hooks/api/auth';
-import { useAuth } from '../context/AuthContext';
+import React, { useState } from 'react'
+import { loginUser } from '../hooks/api/auth'
+import { useAuth } from '../context/AuthContext'
 import {
   View,
   Text,
@@ -10,49 +10,58 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
-} from 'react-native';
-import { useRouter } from 'expo-router';
-import * as SecureStore from 'expo-secure-store';
-
+} from 'react-native'
+import { useRouter } from 'expo-router'
+import * as SecureStore from 'expo-secure-store'
+import { fetchUserProfile } from '../hooks/api/auth'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 export default function LoginScreen() {
-  const router = useRouter();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { login } = useAuth();
-
+  const router = useRouter()
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
+  const { login } = useAuth()
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert('Please enter both email and password.');
-      return;
+      alert('Please enter both email and password.')
+      return
     }
-  
+
     try {
-      const response = await loginUser(email, password);
-      console.log('Login successful:', response);
-  
-      // ✅ Make sure you're logging this to verify
-      console.log('Access token:', response.access);
-  
-      // ✅ Only pass the access token string to login()
-      await login(response.access); // NOT the whole response
-  
-      // Optional: navigate after login
-      router.push({ pathname: '/success', params: { email } });
-  
+      const response = await loginUser(email, password)
+      console.log('Login successful:', response)
+
+      const accessToken = response.access
+
+      // Save the access token using a platform-safe method
+      if (Platform.OS === 'web') {
+        await AsyncStorage.setItem('token', accessToken)
+      } else {
+        await SecureStore.setItemAsync('token', accessToken)
+      }
+
+      // Update Auth Context
+      await login(accessToken)
+
+      // Fetch user profile
+      const profile = await fetchUserProfile(accessToken)
+
+      // Navigate based on profile completion
+      if (!profile.profile_completed) {
+        router.replace('/screen1')
+      } else {
+        router.replace('/success')
+      }
     } catch (error: any) {
-      console.error('Login error:', error);
-      alert(error?.detail || 'Invalid credentials or server error.');
+      console.error('Login error:', error)
+      alert(error?.detail || 'Invalid credentials or server error.')
     }
-  };  
-  
-  
+  }
 
   const handleForgotPassword = () => {
-    router.push('/forgot-password');
-  };
-  
+    router.push('/forgot-password')
+  }
 
   return (
     <ImageBackground
@@ -60,13 +69,11 @@ export default function LoginScreen() {
       style={styles.background}
       resizeMode="cover"
     >
-      
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
-    >
-    
-    <Text style={styles.title}>Welcome</Text>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
+        <Text style={styles.title}>Welcome</Text>
 
         <TextInput
           style={styles.input}
@@ -95,22 +102,22 @@ export default function LoginScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity
-        onPress={() => {
+          onPress={() => {
             try {
-              console.log("Navigating to signup screen");
-              router.push('/signup');
+              console.log('Navigating to signup screen')
+              router.push('/signup')
             } catch (error) {
-              console.error("Navigation error:", error);
+              console.error('Navigation error:', error)
             }
-          }}>
-          <Text style={styles.linkTextSignup}>Don't have an account? Sign up</Text>
+          }}
+        >
+          <Text style={styles.linkTextSignup}>
+            Don't have an account? Sign up
+          </Text>
         </TouchableOpacity>
-
-
       </KeyboardAvoidingView>
-
     </ImageBackground>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -150,22 +157,22 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     fontSize: 16,
   },
-    linkTextSignup: {
+  linkTextSignup: {
     color: '#ddd',
     textAlign: 'center',
     fontSize: 14,
   },
-    linkTextForgot: {
+  linkTextForgot: {
     color: '#178CA4',
     textAlign: 'center',
     fontSize: 14,
     marginBottom: 15,
-    },
-    successText: {
-      color: '#4CAF50',
-      fontSize: 16,
-      textAlign: 'center',
-      marginTop: 10,
-      fontWeight: '600',
-    },    
-});
+  },
+  successText: {
+    color: '#4CAF50',
+    fontSize: 16,
+    textAlign: 'center',
+    marginTop: 10,
+    fontWeight: '600',
+  },
+})

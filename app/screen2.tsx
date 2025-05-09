@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useEffect } from 'react'
 import {
   View,
   Text,
@@ -10,14 +11,28 @@ import {
   KeyboardAvoidingView,
   Platform,
   SafeAreaView,
+  ActivityIndicator,
 } from 'react-native'
 import RNPickerSelect from 'react-native-picker-select'
 import { useRouter } from 'expo-router'
+import * as SecureStore from 'expo-secure-store'
 import { Ionicons } from '@expo/vector-icons' // for dropdown icon
+import { updateUserProfile } from '../hooks/api/auth'
+import Screen1Data from './screen1'
+
+type Screen1Data = {
+  firstName: string
+  lastName: string
+  dob: string
+  gender: string
+  height: string
+  gender_other?: string
+}
 
 export default function Screen2() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
+  const [loading, setLoading] = useState(false)
   const [formData, setFormData] = useState({
     Weight: '',
     Marital_Status: '',
@@ -26,9 +41,89 @@ export default function Screen2() {
     Medical_Conditions: '',
   })
 
-  const handleNext = () => {
-    console.log('Form Data:', formData)
-    // router.push('/form-step-two'); // Uncomment when ready
+  const [screen1Data, setScreen1Data] = useState<Screen1Data | null>(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const savedData = await SecureStore.getItemAsync('screen1Data')
+      if (savedData) {
+        setScreen1Data(JSON.parse(savedData) as Screen1Data)
+      } else {
+        alert(
+          'Missing data from previous step. Please go back and fill it again.'
+        )
+        router.push('/screen1')
+      }
+    }
+    fetchData()
+  }, [])
+
+  const handleSave = async () => {
+    const accessToken = await SecureStore.getItemAsync('token')
+    const savedToken = await SecureStore.getItemAsync('token')
+    console.log('Token saved:', savedToken)
+
+    if (!accessToken) {
+      alert('User is not authenticated. Please log in again.')
+      return
+    }
+
+    if (!screen1Data) {
+      alert('Missing profile data from previous screen.')
+      return
+    }
+
+    // Form validation
+    const { Weight, Marital_Status, Sexual_Activity_Level } = formData
+    const weightValue = parseFloat(Weight)
+
+    if (isNaN(weightValue) || weightValue <= 0 || weightValue > 300) {
+      alert('Please enter a valid weight between 1 and 300 kg.')
+      return
+    }
+
+    if (!Marital_Status || !Sexual_Activity_Level) {
+      alert('Please fill all required fields.')
+      return
+    }
+
+    // Map Marital_Status to backend value
+    const maritalStatusMap = {
+      Single: 'single',
+      Married: 'married',
+      Divorced: 'divorced',
+      'Prefer not to say': '', // or handle as needed
+    }
+
+    setLoading(true)
+
+    try {
+      const fullProfile = {
+        first_name: screen1Data.firstName,
+        last_name: screen1Data.lastName,
+        date_of_birth: screen1Data.dob,
+        gender: screen1Data.gender,
+        gender_other: screen1Data.gender_other || '',
+        height_cm: parseFloat(screen1Data.height),
+        weight_kg: weightValue,
+        marital_status:
+          maritalStatusMap[Marital_Status as keyof typeof maritalStatusMap] || '',
+        sexually_active: Sexual_Activity_Level,
+        menstrual_cycle: formData.Menstrual_Cycle_Details,
+        medical_conditions: formData.Medical_Conditions,
+      }
+
+      const response = await updateUserProfile(accessToken, fullProfile)
+      console.log('Full profile saved:', response)
+
+      await SecureStore.deleteItemAsync('screen1Data')
+      router.push('/success')
+    } catch (error) {
+      console.error('Failed to save profile:', error)
+      alert('Profile update failed. Please try again.')
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -61,6 +156,7 @@ export default function Screen2() {
                   setFormData({ ...formData, Weight: text })
                 }
                 placeholderTextColor="#bbb"
+                keyboardType="numeric"
               />
             </View>
 
@@ -96,17 +192,36 @@ export default function Screen2() {
               </View>
             </View>
 
-            {/* Sexual Activity Level */}
+            {/* Sexual Activity Level Dropdown */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Sexual Activity Level</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.Sexual_Activity_Level}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, Sexual_Activity_Level: text })
-                }
-                placeholderTextColor="#bbb"
-              />
+              <View style={styles.dropdownWrapper}>
+                <RNPickerSelect
+                  onValueChange={(value) =>
+                    setFormData({ ...formData, Sexual_Activity_Level: value })
+                  }
+                  placeholder={{
+                    label: 'Select sexual activity level...',
+                    value: null,
+                    color: '#bbb',
+                  }}
+                  items={[
+                    { label: 'Low', value: 'Low' },
+                    { label: 'Moderate', value: 'Moderate' },
+                    { label: 'High', value: 'High' },
+                    { label: 'Prefer not to say', value: 'Prefer not to say' },
+                  ]}
+                  style={{
+                    inputIOS: styles.dropdownInput,
+                    inputAndroid: styles.dropdownInput,
+                    iconContainer: styles.iconContainer,
+                  }}
+                  Icon={() => (
+                    <Ionicons name="chevron-down" size={20} color="#bbb" />
+                  )}
+                  value={formData.Sexual_Activity_Level}
+                />
+              </View>
             </View>
 
             {/* Menstrual Cycle Details */}
@@ -132,20 +247,24 @@ export default function Screen2() {
                   setFormData({ ...formData, Medical_Conditions: text })
                 }
                 placeholderTextColor="#bbb"
-                keyboardType="numeric"
               />
             </View>
-          <Text style={styles.stepText}>Step 2/2</Text>
-          </View>
 
+            <Text style={styles.stepText}>Step 2/2</Text>
+          </View>
 
           <TouchableOpacity
             style={styles.button}
-            onPress={() => router.push('/chatscreen')}
+            onPress={handleSave}
+            disabled={loading}
           >
-            <Text style={styles.buttonText}>
-              You’re all set! Let’s get started
-            </Text>
+            {loading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>
+                You’re all set! Let’s get started
+              </Text>
+            )}
           </TouchableOpacity>
         </KeyboardAvoidingView>
       </SafeAreaView>
