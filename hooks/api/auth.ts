@@ -1,8 +1,11 @@
-import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-const API_BASE_URL = 'http://192.168.8.165:8000/api'; // include http!
+const API_BASE_URL = 'http://192.168.8.100:8000/api' // include http!
 
+function handleError(error: any) {
+  return error.response?.data || { detail: error.message }
+}
 
 export interface UserProfile {
   weight_kg: number
@@ -17,67 +20,69 @@ export interface UserProfile {
   height_cm: number
 }
 
-// Create one axios instance
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
-});
+})
 
-// Attach token to each request
+let cachedToken: string | null = null
+
 axiosInstance.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem('token');
-  console.log('Interceptor token:', token)
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (!cachedToken) {
+    cachedToken = await AsyncStorage.getItem('token')
+    console.log('Loaded token from storage:', cachedToken)
   }
-  return config;
-});
+  if (cachedToken) {
+    config.headers.Authorization = `Bearer ${cachedToken}`
+  }
+  return config
+})
 
-// Use axiosInstance for API calls
-export const registerUser = async (email: string, password: string, confirm_password: string) => {
+// ✅ API Calls
+
+export const registerUser = async (
+  email: string,
+  password: string,
+  confirm_password: string
+) => {
   try {
     const response = await axiosInstance.post('/register/', {
       email,
       password,
       confirm_password,
-    });
-    return response.data;
+    })
+    return response.data
   } catch (error: any) {
-    throw error.response?.data || error.message;
+    throw handleError(error)
   }
-};
+}
 
 export const loginUser = async (email: string, password: string) => {
   try {
-    const response = await axiosInstance.post('/login/', {
+    const response = await axios.post(`${API_BASE_URL}/token/`, {
       email,
       password,
-    });
-    return response.data;
+    })
+    return response.data
   } catch (error: any) {
-    throw error.response?.data || error.message;
+    throw handleError(error)
   }
-};
+}
 
-// Fetch user profile info
 export const fetchUserProfile = async (accessToken: string) => {
   try {
     const response = await axiosInstance.get('/profile/', {
       headers: {
         Authorization: `Bearer ${accessToken}`,
       },
-    });
-    return response.data; // should include profile_completed
+    })
+    return response.data
   } catch (error: any) {
-    throw error.response?.data || error.message;
+    throw handleError(error)
   }
-};
-
-export default axiosInstance;
-
-
+}
 
 export const updateUserProfile = async (
   accessToken: string,
@@ -91,9 +96,8 @@ export const updateUserProfile = async (
     })
     return response.data
   } catch (error: any) {
-    throw error.response?.data || error.message
+    throw handleError(error)
   }
 }
 
-
-
+export default axiosInstance
