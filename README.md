@@ -1,50 +1,93 @@
-# Welcome to your Expo app 👋
+# 🐳Intima Front-End
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Intima** is an AI-powered healthcare assistant designed to offer confidential and personalized support for sexual, reproductive, and wellness concerns. This frontend application enables users to discuss sensitive health issues and receive accurate, evidence-based responses tailored for both men and women.
 
-## Get started
+## 🚀 Features
 
-1. Install dependencies
+- Conversational AI interface for seamless user interaction.
 
-   ```bash
-   npm install
-   ```
+- Personalized responses based on user input.
 
-2. Start the app
+- Secure and confidential handling of sensitive health information.
 
-   ```bash
-    npx expo start
-   ```
+- Responsive design optimized for various devices.
 
-In the output, you'll find options to open the app in a
+## 🛠️ Tech Stack
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- **React Native:** For building native mobile applications.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- **Expo:** To streamline development and testing processes.
 
-## Get a fresh project
+- **TypeScript:** Ensuring type safety and improved code maintainability.
 
-When you're ready, run:
+- **Custom Hooks & Components:** Modular and reusable code structures.
+
+## 📁 Project Structure
+
+├── app/ # Main application components and screens
+├── assets/ # Images, fonts, and other static assets
+├── components/ # Reusable UI components
+├── constants/ # Application-wide constants
+├── hooks/ # Custom React hooks
+├── scripts/ # Utility scripts
+├── app.json # Expo configuration
+├── package.json # Project metadata and dependencies
+├── tsconfig.json # TypeScript configuration
+└── README.md # Project documentation
+
+## 🧑‍💻 Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or above)
+
+- npm or yarn package manager
+
+- Expo CLI
+
+## Installation
+
+### 1.Clone the repository:
 
 ```bash
-npm run reset-project
+git clone https://github.com/thewijay/Intima_Front-End.git
+cd Intima_Front-End
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2.Install dependencies:
 
-## Learn more
+```bash
+npm install
+# or
+yarn install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Start the development server:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npx expo start
+```
 
-## Join the community
+This will launch the Expo development tools in your browser. You can then run the app on an emulator or a physical device using the Expo Go app.
 
-Join our community of developers creating universal apps.
+### 📦 Available Scripts
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **npm start:** Starts the development server.
+
+- **npm run android:** Builds and runs the app on an Android emulator or device.
+
+- **npm run ios:** Builds and runs the app on an iOS simulator or device (macOS only).
+
+- **npm run web:** Runs the app in a web browser.
+
+### 🤝 Contributing
+
+Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
+
+### 📄 License
+
+This project is licensed under the MIT License.
+
+### 📬 Contact
+
+For questions or feedback, please open an issue or contact the repository owner directly.
