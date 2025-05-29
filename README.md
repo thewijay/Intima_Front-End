@@ -1,6 +1,16 @@
-# 🐳Intima Front-End
+# Intima Front-End
 
 **Intima** is an AI-powered healthcare assistant designed to offer confidential and personalized support for sexual, reproductive, and wellness concerns. This frontend application enables users to discuss sensitive health issues and receive accurate, evidence-based responses tailored for both men and women.
+
+---
+
+## 🎓 Project Origin
+
+This project was developed as part of the 2nd Year 2nd Semester curriculum at the  
+[Sabaragamuwa University of Sri Lanka](https://sab.ac.lk/).  
+It reflects our commitment to building innovative digital solutions that address real-world challenges in healthcare and wellness.
+
+---
 
 ## 🚀 Features
 
@@ -70,24 +80,11 @@ npx expo start
 
 This will launch the Expo development tools in your browser. You can then run the app on an emulator or a physical device using the Expo Go app.
 
-### 📦 Available Scripts
+---
 
-- **npm start:** Starts the development server.
+## 🎓 Academic Acknowledgment
 
-- **npm run android:** Builds and runs the app on an Android emulator or device.
+This project is a proud outcome of collaborative learning and innovation at the  
+🌱 **[Sabaragamuwa University of Sri Lanka](https://sab.ac.lk/)** – where creativity meets real-world impact.
 
-- **npm run ios:** Builds and runs the app on an iOS simulator or device (macOS only).
-
-- **npm run web:** Runs the app in a web browser.
-
-### 🤝 Contributing
-
-Contributions are welcome! Please fork the repository and submit a pull request for any enhancements or bug fixes.
-
-### 📄 License
-
-This project is licensed under the MIT License.
-
-### 📬 Contact
-
-For questions or feedback, please open an issue or contact the repository owner directly.
+We thank our mentors and the Faculty of Computing for the continued support and academic inspiration.
