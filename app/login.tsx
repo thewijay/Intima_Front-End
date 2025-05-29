@@ -36,9 +36,9 @@ export default function LoginScreen() {
 
       // Save the access token using a platform-safe method
       if (Platform.OS === 'web') {
-        await AsyncStorage.setItem('token', accessToken)
+        await AsyncStorage.setItem('authToken', accessToken)
       } else {
-        await SecureStore.setItemAsync('token', accessToken)
+        await SecureStore.setItemAsync('authToken', accessToken)
       }
 
       // Update Auth Context
@@ -51,7 +51,7 @@ export default function LoginScreen() {
       if (!profile.profile_completed) {
         router.replace('/screen1')
       } else {
-        router.replace('/success')
+        router.replace('/chatscreen')
       }
     } catch (error: any) {
       console.error('Login error:', error)

@@ -107,7 +107,8 @@ export default function Screen2() {
         height_cm: parseFloat(screen1Data.height),
         weight_kg: weightValue,
         marital_status:
-          maritalStatusMap[Marital_Status as keyof typeof maritalStatusMap] || '',
+          maritalStatusMap[Marital_Status as keyof typeof maritalStatusMap] ||
+          '',
         sexually_active: Sexual_Activity_Level,
         menstrual_cycle: formData.Menstrual_Cycle_Details,
         medical_conditions: formData.Medical_Conditions,
@@ -117,7 +118,7 @@ export default function Screen2() {
       console.log('Full profile saved:', response)
 
       await SecureStore.deleteItemAsync('screen1Data')
-      router.push('/success')
+      router.push('/chatscreen')
     } catch (error) {
       console.error('Failed to save profile:', error)
       alert('Profile update failed. Please try again.')
