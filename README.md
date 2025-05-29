@@ -6,9 +6,8 @@
 
 ## 🎓 Project Origin
 
-This project was developed as part of the 2nd Year 2nd Semester curriculum at the  
-[Sabaragamuwa University of Sri Lanka](https://sab.ac.lk/).  
-It reflects our commitment to building innovative digital solutions that address real-world challenges in healthcare and wellness.
+This project was developed as part of the **Capstone Project** module in the 2nd Year 2nd Semester at the [Sabaragamuwa University of Sri Lanka](https://sab.ac.lk/).  
+It reflects our commitment to building innovative AI-powered digital solutions that address real-world challenges in healthcare and wellness.
 
 ---
 
@@ -84,7 +83,8 @@ This will launch the Expo development tools in your browser. You can then run th
 
 ## 🎓 Academic Acknowledgment
 
-This project is a proud outcome of collaborative learning and innovation at the  
+This project is a proud outcome of our **Capstone Project** module at the  
 🌱 **[Sabaragamuwa University of Sri Lanka](https://sab.ac.lk/)** – where creativity meets real-world impact.
 
 We thank our mentors and the Faculty of Computing for the continued support and academic inspiration.
+
