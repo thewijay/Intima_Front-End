@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react'
 import Markdown from 'react-native-markdown-display'
 import { useNavigation } from '@react-navigation/native'
 import { DrawerNavigationProp } from '@react-navigation/drawer'
-import type { ChatDrawerParamList } from './ChatDrawer'
 import {
   StyleSheet,
   Text,
@@ -17,10 +16,11 @@ import {
   ActivityIndicator,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import ChatService from '../services/chatService'
+import ChatService from '../../services/chatService'
 import { ChatResponse } from '@/services/chatService'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/context/AuthContext'
+import { ChatDrawerParamList } from '@/types/navigation'
 
 const { width } = Dimensions.get('window')
 
@@ -35,18 +35,17 @@ interface Message {
 export default function ChatScreen() {
   const { token } = useAuth()
   const router = useRouter()
+  const navigation = useNavigation<DrawerNavigationProp<ChatDrawerParamList>>()
 
   useEffect(() => {
     if (!token) {
       router.replace('/')
     }
   }, [token])
-  
+
   const [messages, setMessages] = useState<Message[]>([])
   const [inputText, setInputText] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-
-  const navigation = useNavigation<DrawerNavigationProp<ChatDrawerParamList>>()
 
   const conversationId = useRef<string>(
     `conv_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
@@ -128,7 +127,7 @@ export default function ChatScreen() {
     return item.sender === 'bot' ? (
       <View style={styles.botRow}>
         <Image
-          source={require('../assets/images/logo_only.png')}
+          source={require('../../assets/images/logo_only.png')}
           style={styles.logoSmall}
         />
         <View>
@@ -159,18 +158,18 @@ export default function ChatScreen() {
 
   return (
     <ImageBackground
-      source={require('../assets/images/background1.png')}
+      source={require('../../assets/images/background1.png')}
       style={styles.background}
     >
       <SafeAreaView style={styles.container}>
         {/* Top Left Logo */}
         <View style={styles.logoTopLeftContainer}>
           <Image
-            source={require('../assets/images/logo.png')}
+            source={require('../../assets/images/logo.png')}
             style={styles.logoTopLeft}
             resizeMode="contain"
           />
-            {/* Hamburger Menu */}
+          {/* Hamburger Menu */}
           <TouchableOpacity
             onPress={() => navigation.openDrawer()}
             style={styles.iconTopRight}
@@ -231,13 +230,13 @@ const styles = StyleSheet.create({
   logoTopLeftContainer: {
     alignItems: 'flex-start',
     justifyContent: 'space-between',
-    flexDirection: 'row'
+    flexDirection: 'row',
   },
   logoTopLeft: {
     width: width * 0.35,
     height: width * 0.35,
   },
-  iconTopRight:{
+  iconTopRight: {
     paddingRight: 40,
     paddingTop: 50,
   },

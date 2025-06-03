@@ -8,6 +8,7 @@ import React, {
 import * as SecureStore from 'expo-secure-store'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Platform } from 'react-native'
+import { router } from 'expo-router'
 
 type AuthContextType = {
   token: string | null
@@ -73,6 +74,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       await removeToken()
       setToken(null)
+      router.replace('/login')
     } catch (error) {
       console.error('Logout error:', error)
     }

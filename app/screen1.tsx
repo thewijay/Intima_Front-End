@@ -3,8 +3,10 @@ type FormData = {
   lastName: string
   dob: string
   gender: string
+  gender_other?: string
   height: string
 }
+
 import React, { useState } from 'react'
 import * as SecureStore from 'expo-secure-store'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -37,7 +39,7 @@ export default function Screen1Data() {
   })
 
   const handleNext = async () => {
-    const { firstName, lastName, dob, gender, height } = formData
+    const { firstName, lastName, dob, gender, height, gender_other } = formData
 
     if (!firstName || !lastName || !dob || gender === '') {
       alert('Please fill in all required fields')
@@ -61,19 +63,22 @@ export default function Screen1Data() {
       return
     }
 
+    if (gender === 'other' && (!gender_other || gender_other.trim() === '')) {
+      alert('Please specify your gender')
+      return
+    }
+
     try {
-      setLoading(true) // Start loading
+      setLoading(true)
       await SecureStore.setItemAsync('screen1Data', JSON.stringify(formData))
-      router.push('/screen2') // Navigate on success
+      router.push('/screen2')
     } catch (error) {
       alert('Something went wrong. Please try again.')
       console.error('SecureStore error:', error)
     } finally {
-      setLoading(false) // Stop loading
+      setLoading(false)
     }
   }
-
-
 
   return (
     <ImageBackground
@@ -94,10 +99,8 @@ export default function Screen1Data() {
         >
           <Text style={styles.title}>Create Account</Text>
 
-          {/* Main content area with flex: 1 */}
           <View style={{ flex: 1, justifyContent: 'center' }}>
             <View style={styles.formBox}>
-              {/* First Name */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>First Name</Text>
                 <TextInput
@@ -110,7 +113,6 @@ export default function Screen1Data() {
                 />
               </View>
 
-              {/* Last Name */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Last Name</Text>
                 <TextInput
@@ -123,7 +125,6 @@ export default function Screen1Data() {
                 />
               </View>
 
-              {/* DOB */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Date of Birth</Text>
                 <TextInput
@@ -138,13 +139,17 @@ export default function Screen1Data() {
                 />
               </View>
 
-              {/* Gender Dropdown */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Gender</Text>
                 <View style={styles.dropdownWrapper}>
                   <RNPickerSelect
                     onValueChange={(value) =>
-                      setFormData({ ...formData, gender: value })
+                      setFormData({
+                        ...formData,
+                        gender: value,
+                        gender_other:
+                          value === 'other' ? formData.gender_other : '',
+                      })
                     }
                     placeholder={{
                       label: 'Select gender...',
@@ -173,21 +178,21 @@ export default function Screen1Data() {
                     )}
                     value={formData.gender}
                   />
-                  {formData.gender === 'other' && (
-                    <TextInput
-                      style={styles.input}
-                      placeholder="Please specify"
-                      value={formData.gender_other}
-                      onChangeText={(text) =>
-                        setFormData({ ...formData, gender_other: text })
-                      }
-                      placeholderTextColor="#bbb"
-                    />
-                  )}
                 </View>
+
+                {formData.gender === 'other' && (
+                  <TextInput
+                    style={styles.input}
+                    placeholder="Please specify"
+                    value={formData.gender_other}
+                    onChangeText={(text) =>
+                      setFormData({ ...formData, gender_other: text })
+                    }
+                    placeholderTextColor="#bbb"
+                  />
+                )}
               </View>
 
-              {/* Height */}
               <View style={styles.inputGroup}>
                 <Text style={styles.label}>Height (cm)</Text>
                 <TextInput
@@ -200,11 +205,11 @@ export default function Screen1Data() {
                   keyboardType="numeric"
                 />
               </View>
+
               <Text style={styles.stepText}>Step 1/2</Text>
             </View>
           </View>
 
-          {/* Button at the bottom */}
           <TouchableOpacity
             style={styles.button}
             onPress={handleNext}
@@ -277,14 +282,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     paddingVertical: 8,
     paddingHorizontal: 10,
-    paddingRight: 30, // Ensures space for the icon
+    paddingRight: 30,
     fontSize: 16,
   },
-
   stepText: {
     color: '#ccc',
     textAlign: 'center',
-    marginTop: 0,
     fontSize: 12,
   },
   button: {
@@ -296,7 +299,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 40,
     alignSelf: 'center',
     marginTop: 10,
-    marginBottom: 20, // Add space from bottom edge
+    marginBottom: 20,
   },
   buttonText: {
     color: '#fff',

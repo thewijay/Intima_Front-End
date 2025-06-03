@@ -59,8 +59,8 @@ export default function Screen2() {
   }, [])
 
   const handleSave = async () => {
-    const accessToken = await SecureStore.getItemAsync('token')
-    const savedToken = await SecureStore.getItemAsync('token')
+    const accessToken = await SecureStore.getItemAsync('authToken')
+    const savedToken = await SecureStore.getItemAsync('authToken')
     console.log('Token saved:', savedToken)
 
     if (!accessToken) {
@@ -118,7 +118,7 @@ export default function Screen2() {
       console.log('Full profile saved:', response)
 
       await SecureStore.deleteItemAsync('screen1Data')
-      router.push('/chatscreen')
+      router.replace('/chat')
     } catch (error) {
       console.error('Failed to save profile:', error)
       alert('Profile update failed. Please try again.')
