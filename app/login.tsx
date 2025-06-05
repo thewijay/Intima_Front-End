@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { loginUser } from '../hooks/api/auth'
 import { useAuth } from '../context/AuthContext'
 import {
@@ -21,24 +21,29 @@ export default function LoginScreen() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const { login } = useAuth()
+  const [loading, setLoading] = useState(false)
 
   const handleLogin = async () => {
-    if (!email || !password) {
+    const trimmedEmail = email.trim()
+    const trimmedPassword = password.trim()
+
+    if (!trimmedEmail || !trimmedPassword) {
       alert('Please enter both email and password.')
       return
     }
-
+    
+    setLoading(true)
     try {
       const response = await loginUser(email, password)
       console.log('Login successful:', response)
 
       const accessToken = response.access
 
-      // Save the access token using a platform-safe method
+      // Save the access token securely
       if (Platform.OS === 'web') {
-        await AsyncStorage.setItem('token', accessToken)
+        await AsyncStorage.setItem('authToken', accessToken)
       } else {
-        await SecureStore.setItemAsync('token', accessToken)
+        await SecureStore.setItemAsync('authToken', accessToken)
       }
 
       // Update Auth Context
@@ -47,15 +52,13 @@ export default function LoginScreen() {
       // Fetch user profile
       const profile = await fetchUserProfile(accessToken)
 
-      // Navigate based on profile completion
-      if (!profile.profile_completed) {
-        router.replace('/screen1')
-      } else {
-        router.replace('/success')
-      }
+      // Set the next route (DO THIS INSTEAD OF IMMEDIATE router.replace)
+      router.replace(profile.profile_completed ? '/chat' : '/screen1')
     } catch (error: any) {
       console.error('Login error:', error)
       alert(error?.detail || 'Invalid credentials or server error.')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -93,8 +96,14 @@ export default function LoginScreen() {
           onChangeText={setPassword}
         />
 
-        <TouchableOpacity style={styles.button} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Login</Text>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={handleLogin}
+          disabled={loading}
+        >
+          <Text style={styles.buttonText}>
+            {loading ? 'Logging in...' : 'Login'}
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleForgotPassword}>

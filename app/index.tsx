@@ -19,7 +19,7 @@ export default function WelcomeScreen() {
     useEffect(() => {
       if (!loading) {
         if (token) {
-          router.replace('/success');
+          router.replace('/chat');
         }
       }
     }, [loading, token]);
