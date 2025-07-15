@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Text,
@@ -7,6 +7,8 @@ import {
   ImageBackground,
   Image,
   ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
@@ -15,6 +17,9 @@ import { useAuth } from '../context/AuthContext';
 export default function WelcomeScreen() {
     const router = useRouter();
     const { token, loading } = useAuth();
+    const fadeAnim = useRef(new Animated.Value(0)).current;
+    const pulseAnim = useRef(new Animated.Value(1)).current;
+    const glowAnim = useRef(new Animated.Value(0)).current;
 
     useEffect(() => {
       if (!loading) {
@@ -22,8 +27,57 @@ export default function WelcomeScreen() {
           router.replace('/chat');
         }
       }
+      // Start fade-in
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 1000,
+        useNativeDriver: true,
+      }).start();
+      // Start pulse and glow loop
+      Animated.loop(
+        Animated.parallel([
+          Animated.sequence([
+            Animated.timing(pulseAnim, {
+              toValue: 1.08,
+              duration: 900,
+              easing: Easing.inOut(Easing.ease),
+              useNativeDriver: true,
+            }),
+            Animated.timing(pulseAnim, {
+              toValue: 1,
+              duration: 900,
+              easing: Easing.inOut(Easing.ease),
+              useNativeDriver: true,
+            }),
+          ]),
+          Animated.sequence([
+            Animated.timing(glowAnim, {
+              toValue: 1,
+              duration: 900,
+              easing: Easing.inOut(Easing.ease),
+              useNativeDriver: false,
+            }),
+            Animated.timing(glowAnim, {
+              toValue: 0,
+              duration: 900,
+              easing: Easing.inOut(Easing.ease),
+              useNativeDriver: false,
+            }),
+          ]),
+        ])
+      ).start();
     }, [loading, token]);
-  
+
+    // Interpolate shadow for glow effect
+    const shadowGlow = glowAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 18],
+    });
+    const shadowOpacity = glowAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.2, 0.7],
+    });
+
     if (loading) {
       return (
         <View style={styles.center}>
@@ -40,23 +94,37 @@ export default function WelcomeScreen() {
     >
 
     <View style={styles.container}>
-      <View style={styles.logoContainer}>
-        <Image
-          source={require("../assets/images/logo.png")} style={styles.logo} />
-        <View style={styles.overlay}>
-            <Text style={styles.subtitle}>
-              AI-Based Sexual and Wellness Healthcare Assistant
-            </Text>
-        </View>
-      </View>
-
-      <TouchableOpacity
-          style={styles.button}
-          onPress={() => router.push('/login')}
+      <View style={styles.logoRow}>
+        <Animated.View
+          style={[
+            {
+              opacity: fadeAnim,
+              transform: [{ scale: pulseAnim }],
+              shadowColor: '#00E1FF',
+              shadowOffset: { width: 0, height: 0 },
+              shadowRadius: shadowGlow,
+              shadowOpacity: shadowOpacity,
+              elevation: shadowGlow, // Android shadow
+            },
+          ]}
         >
+          <Image
+            source={require("../assets/images/logo_only.png")}
+            style={styles.logoIcon}
+          />
+        </Animated.View>
+        <Text style={styles.logoText}>Intima</Text>
+      </View>
+      <Text style={styles.subtitle}>
+        AI-Based Sexual and Wellness Healthcare Assistant
+      </Text>
+      <View style={{ flex: 1 }} />
+      <TouchableOpacity
+        style={styles.button}
+        onPress={() => router.push('/login')}
+      >
         <Text style={styles.buttonText}>Get Started</Text>
       </TouchableOpacity>
-      
     </View>
     </ImageBackground>
   );
@@ -77,25 +145,29 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 60,
   },
-  logoContainer: {
-    flex: 1,
+  logoRow: {
+    flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative',
+    justifyContent: 'center',
+    marginTop: 100,
+    marginBottom: 24,
   },
-  logo: {
-    marginTop: 30,
-    width: 300,
-    height: 300,
+  logoIcon: {
+    width: 90,
+    height: 90,
+    marginRight: 1,
     resizeMode: 'contain',
+  },
+  logoText: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#fff',
+    letterSpacing: 1,
   },
   subtitle: {
     fontSize: 11,
     color: 'white',
     textAlign: 'center',
-  },
-  overlay: {
-    position: 'absolute',
-    top: '46%',
   },
   button: {
     backgroundColor: '#00ACC1', // Cyan shade

@@ -14,6 +14,8 @@ import {
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
+  Animated,
+  Easing,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import ChatService from '../../services/chatService'
@@ -36,12 +38,28 @@ export default function ChatScreen() {
   const { token } = useAuth()
   const router = useRouter()
   const navigation = useNavigation<DrawerNavigationProp<ChatDrawerParamList>>()
+  const rotateAnim = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
     if (!token) {
       router.replace('/')
     }
+
+    // Start rotation animation
+    Animated.loop(
+      Animated.timing(rotateAnim, {
+        toValue: 1,
+        duration: 2000,
+        easing: Easing.linear,
+        useNativeDriver: true,
+      })
+    ).start()
   }, [token])
+
+  const spin = rotateAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0deg', '360deg']
+  })
 
   const [messages, setMessages] = useState<Message[]>([])
   const [inputText, setInputText] = useState<string>('')
@@ -164,9 +182,9 @@ export default function ChatScreen() {
       <SafeAreaView style={styles.container}>
         {/* Top Left Logo */}
         <View style={styles.logoTopLeftContainer}>
-          <Image
+          <Animated.Image
             source={require('../../assets/images/logo.png')}
-            style={styles.logoTopLeft}
+            style={[styles.logoTopLeft, { transform: [{ rotate: spin }] }]}
             resizeMode="contain"
           />
           {/* Hamburger Menu */}
