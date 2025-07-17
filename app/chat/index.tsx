@@ -45,9 +45,9 @@ export default function ChatScreen() {
     markConversationAsJustCreated,
   } = useConversation()
 
-  // Responsive values
+  // Fixed responsive values with controlled logo size
   const NAVBAR_HEIGHT = Math.max(60, height * 0.11)
-  const LOGO_SIZE = Math.max(40, width * 0.18)
+  const LOGO_SIZE = 64 // Fixed size for better consistency
   const ICON_SIZE = Math.max(24, width * 0.08)
   const INPUT_HEIGHT = Math.max(48, height * 0.07)
 
@@ -260,11 +260,15 @@ export default function ChatScreen() {
         style={styles.background}
       >
         {/* Navigation Bar */}
-        <View style={[styles.navbar, { height: NAVBAR_HEIGHT }]}>  
+        <View style={[styles.navbar, { height: NAVBAR_HEIGHT }]}>
           <View style={styles.navbarContent}>
             <Image
-              source={require('../../assets/images/logo.png')}
-              style={{ width: LOGO_SIZE, height: LOGO_SIZE, resizeMode: 'contain' }}
+              source={require('../../assets/images/LOGONEW.png')}
+              style={{
+                width: LOGO_SIZE,
+                height: LOGO_SIZE,
+                resizeMode: 'contain',
+              }}
             />
             <TouchableOpacity
               onPress={() => navigation.openDrawer()}
@@ -276,7 +280,7 @@ export default function ChatScreen() {
         </View>
 
         {/* Chat Messages */}
-        <View style={[styles.chatContainer, { marginTop: NAVBAR_HEIGHT }]}> 
+        <View style={[styles.chatContainer, { marginTop: NAVBAR_HEIGHT }]}>
           {isLoadingHistory ? (
             <View style={styles.loadingHistoryContainer}>
               <ActivityIndicator size="large" color="#00E1FF" />
@@ -297,7 +301,7 @@ export default function ChatScreen() {
         </View>
 
         {/* Input Area */}
-        <View style={[styles.inputContainer, { height: INPUT_HEIGHT }]}> 
+        <View style={[styles.inputContainer, { height: INPUT_HEIGHT }]}>
           <Ionicons name="happy-outline" size={ICON_SIZE * 0.9} color="#fff" />
           <TextInput
             placeholder="Type message here..."
@@ -353,7 +357,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: width * 0.05,
+    paddingHorizontal: width * 0.06,
+    paddingTop: '24',
     width: '100%',
     height: '100%',
   },

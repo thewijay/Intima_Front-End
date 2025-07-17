@@ -91,7 +91,7 @@ function CustomDrawerContent(props: any) {
       {/* NAVIGATION BAR WITH LOGO */}
       <View style={styles.navbar}>
         <Image
-          source={require('../../assets/images/logo.png')}
+          source={require('../../assets/images/LOGONEW.png')}
           style={styles.logo}
           resizeMode="contain"
         />
@@ -162,7 +162,11 @@ function CustomDrawerContent(props: any) {
                     )}
                   </View>
                   {currentConversationId === conversation.conversation_id && (
-                    <Feather name="message-circle" size={Math.max(16, width * 0.045)} color="#00E1FF" />
+                    <Feather
+                      name="message-circle"
+                      size={Math.max(16, width * 0.045)}
+                      color="#00E1FF"
+                    />
                   )}
                 </TouchableOpacity>
               ))
@@ -400,12 +404,12 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: height * 0.025,
-    marginBottom: height * 0.01,
+    paddingVertical: height * 0.02,
+    marginBottom: height * 0.001,
   },
   logo: {
-    width: width * 0.32,
-    height: width * 0.13,
+    width: Math.max(120, width * 0.32),
+    height: Math.max(72, width * 0.13),
   },
   newConversationButton: {
     flexDirection: 'row',
