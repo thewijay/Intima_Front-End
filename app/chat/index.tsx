@@ -45,6 +45,12 @@ export default function ChatScreen() {
     markConversationAsJustCreated,
   } = useConversation()
 
+  // Responsive values
+  const NAVBAR_HEIGHT = Math.max(60, height * 0.11)
+  const LOGO_SIZE = Math.max(40, width * 0.18)
+  const ICON_SIZE = Math.max(24, width * 0.08)
+  const INPUT_HEIGHT = Math.max(48, height * 0.07)
+
   useEffect(() => {
     if (!token) {
       router.replace('/')
@@ -248,60 +254,59 @@ export default function ChatScreen() {
   }
 
   return (
-    <ImageBackground
-      source={require('../../assets/images/background1.png')}
-      style={styles.background}
-      imageStyle={{ width: '100%', height: '100%' }}
-    >
-      <SafeAreaView style={styles.container}>
-        {/* Top Navigation Bar */}
-        <View style={styles.navBar}>
-          <View style={styles.logoNavContainer}>
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('../../assets/images/background1.png')}
+        style={styles.background}
+      >
+        {/* Navigation Bar */}
+        <View style={[styles.navbar, { height: NAVBAR_HEIGHT }]}>  
+          <View style={styles.navbarContent}>
             <Image
               source={require('../../assets/images/logo.png')}
-              style={styles.logoTopLeft}
-              resizeMode="contain"
+              style={{ width: LOGO_SIZE, height: LOGO_SIZE, resizeMode: 'contain' }}
             />
+            <TouchableOpacity
+              onPress={() => navigation.openDrawer()}
+              style={styles.iconTopRight}
+            >
+              <Ionicons name="menu" size={ICON_SIZE} color="#fff" />
+            </TouchableOpacity>
           </View>
-          <TouchableOpacity
-            onPress={() => navigation.openDrawer()}
-            style={styles.iconTopRight}
-          >
-            <Ionicons name="menu" size={Math.max(24, width * 0.07)} color="#fff" />
-          </TouchableOpacity>
         </View>
 
         {/* Chat Messages */}
-        {isLoadingHistory ? (
-          <View style={styles.loadingHistoryContainer}>
-            <ActivityIndicator size="large" color="#00E1FF" />
-            <Text style={styles.loadingHistoryText}>
-              Loading conversation...
-            </Text>
-          </View>
-        ) : (
-          <FlatList
-            ref={flatListRef}
-            data={messages}
-            renderItem={renderItem}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.chat}
-            showsVerticalScrollIndicator={false}
-          />
-        )}
+        <View style={[styles.chatContainer, { marginTop: NAVBAR_HEIGHT }]}> 
+          {isLoadingHistory ? (
+            <View style={styles.loadingHistoryContainer}>
+              <ActivityIndicator size="large" color="#00E1FF" />
+              <Text style={styles.loadingHistoryText}>
+                Loading conversation...
+              </Text>
+            </View>
+          ) : (
+            <FlatList
+              ref={flatListRef}
+              data={messages}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.chat}
+              showsVerticalScrollIndicator={false}
+            />
+          )}
+        </View>
 
         {/* Input Area */}
-        <View style={styles.inputContainer}>
-          <Ionicons name="happy-outline" size={Math.max(22, width * 0.06)} color="#fff" />
+        <View style={[styles.inputContainer, { height: INPUT_HEIGHT }]}> 
+          <Ionicons name="happy-outline" size={ICON_SIZE * 0.9} color="#fff" />
           <TextInput
             placeholder="Type message here..."
             placeholderTextColor="#ccc"
-            style={styles.input}
+            style={[styles.input, { fontSize: Math.max(15, width * 0.04) }]}
             value={inputText}
             onChangeText={setInputText}
             editable={!isLoading}
           />
-
           <TouchableOpacity
             onPress={sendMessage}
             disabled={!inputText.trim() || isLoading}
@@ -311,21 +316,21 @@ export default function ChatScreen() {
             ) : (
               <Ionicons
                 name="send"
-                size={Math.max(22, width * 0.06)}
+                size={ICON_SIZE * 0.9}
                 color={!inputText.trim() ? '#666' : '#00E1FF'}
               />
             )}
           </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </ImageBackground>
+      </ImageBackground>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    paddingBottom: height * 0.01,
+    backgroundColor: '#141F39',
   },
   background: {
     flex: 1,
@@ -333,35 +338,37 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  navBar: {
+  navbar: {
+    width: '100%',
+    backgroundColor: 'rgba(20, 31, 57, 0.98)',
+    justifyContent: 'center',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    zIndex: 10,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#222',
+  },
+  navbarContent: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: width * 0.04,
-    paddingTop: height * 0.03,
-    paddingBottom: height * 0.01,
-    backgroundColor: 'rgba(20, 31, 57, 0.7)', // semi-transparent for contrast
-    zIndex: 10,
-  },
-  logoNavContainer: {
-    flex: 1,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-  },
-  logoTopLeft: {
-    width: width * 0.28,
-    height: width * 0.13,
-    marginLeft: width * 0.01,
-    marginTop: 0,
+    paddingHorizontal: width * 0.05,
+    width: '100%',
+    height: '100%',
   },
   iconTopRight: {
-    paddingRight: width * 0.01,
-    paddingTop: 0,
+    padding: 4,
+  },
+  chatContainer: {
+    flex: 1,
+    width: '100%',
+    paddingBottom: height * 0.11,
   },
   chat: {
     paddingHorizontal: width * 0.04,
-    paddingBottom: height * 0.13, // leave space for input
-    minHeight: height * 0.5,
+    paddingBottom: height * 0.02,
+    paddingTop: 2,
   },
   botRow: {
     flexDirection: 'row',
@@ -382,8 +389,7 @@ const styles = StyleSheet.create({
   },
   messageBubble: {
     borderRadius: 20,
-    paddingVertical: height * 0.015,
-    paddingHorizontal: width * 0.04,
+    padding: width * 0.03,
     marginBottom: 4,
     maxWidth: width * 0.75,
   },
@@ -415,19 +421,18 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: height * 0.012,
     paddingHorizontal: width * 0.03,
     backgroundColor: '#141F39',
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    minHeight: height * 0.08,
+    borderTopWidth: 0.5,
+    borderTopColor: '#222',
   },
   input: {
     flex: 1,
     marginHorizontal: width * 0.025,
     color: '#fff',
-    fontSize: Math.max(15, width * 0.04),
     paddingVertical: height * 0.01,
   },
   loadingHistoryContainer: {
