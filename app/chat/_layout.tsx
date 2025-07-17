@@ -8,11 +8,16 @@ import {
   ScrollView,
   ActivityIndicator,
   StyleSheet,
+  Dimensions,
+  SafeAreaView,
+  Image,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useAuth } from '../../context/AuthContext'
 import ChatService from '../../services/chatService'
 import type { Conversation } from '../../services/chatService.d'
+
+const { width, height } = Dimensions.get('window')
 
 // Context for conversation management
 interface ConversationContextType {
@@ -82,7 +87,15 @@ function CustomDrawerContent(props: any) {
   }
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
+      {/* Responsive Navigation Bar with Logo */}
+      <View style={styles.navBar}>
+        <Image
+          source={require('../../assets/images/logo.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
       {/* NEW CONVERSATION BUTTON - TOP */}
       <TouchableOpacity
         style={styles.newConversationButton}
@@ -90,7 +103,7 @@ function CustomDrawerContent(props: any) {
       >
         <Feather
           name="plus"
-          size={20}
+          size={Math.max(20, width * 0.055)}
           color="#00E1FF"
           style={{ marginRight: 10 }}
         />
@@ -165,7 +178,7 @@ function CustomDrawerContent(props: any) {
         <TouchableOpacity style={styles.actionButton}>
           <Feather
             name="settings"
-            size={20}
+            size={Math.max(20, width * 0.055)}
             color="#fff"
             style={{ marginRight: 10 }}
           />
@@ -175,14 +188,14 @@ function CustomDrawerContent(props: any) {
         <TouchableOpacity style={styles.actionButton} onPress={handleLogout}>
           <Feather
             name="log-out"
-            size={20}
+            size={Math.max(20, width * 0.055)}
             color="red"
             style={{ marginRight: 10 }}
           />
           <Text style={styles.logoutText}>Logout</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   )
 }
 
@@ -384,41 +397,55 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#1a1a1a',
-    padding: 16,
+    paddingHorizontal: width * 0.04, // responsive horizontal padding
+    paddingTop: height * 0.01, // responsive top padding
+    paddingBottom: height * 0.01, // responsive bottom padding
+  },
+  // Responsive navigation bar
+  navBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: height * 0.015,
+    marginBottom: height * 0.01,
+  },
+  logo: {
+    width: Math.min(width * 0.35, 180),
+    height: Math.min(width * 0.12, 60),
   },
   newConversationButton: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2a2a2a',
-    padding: 12,
+    padding: width * 0.03, // responsive padding
     borderRadius: 8,
-    marginBottom: 20,
+    marginBottom: height * 0.025, // responsive margin
     borderWidth: 1,
     borderColor: '#00E1FF',
   },
   newConversationText: {
     color: '#00E1FF',
-    fontSize: 16,
+    fontSize: Math.max(16, width * 0.045),
     fontWeight: '600',
   },
   conversationSection: {
     flex: 1,
-    marginBottom: 20,
+    marginBottom: height * 0.025, // responsive margin
   },
   sectionTitle: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: Math.max(18, width * 0.05),
     fontWeight: 'bold',
-    marginBottom: 12,
+    marginBottom: height * 0.015,
   },
   loadingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 20,
+    padding: width * 0.05,
   },
   loadingText: {
     color: '#ccc',
-    marginLeft: 10,
+    marginLeft: width * 0.025,
   },
   conversationList: {
     flex: 1,
@@ -426,16 +453,16 @@ const styles = StyleSheet.create({
   emptyText: {
     color: '#888',
     textAlign: 'center',
-    marginTop: 20,
+    marginTop: height * 0.025,
     fontStyle: 'italic',
   },
   conversationItem: {
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#2a2a2a',
-    padding: 12,
+    padding: width * 0.03,
     borderRadius: 8,
-    marginBottom: 8,
+    marginBottom: height * 0.012,
     borderWidth: 1,
     borderColor: '#3a3a3a',
   },
@@ -448,39 +475,39 @@ const styles = StyleSheet.create({
   },
   conversationTitle: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: Math.max(14, width * 0.04),
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: height * 0.005,
   },
   activeConversationText: {
     color: '#00E1FF',
   },
   conversationDate: {
     color: '#888',
-    fontSize: 12,
-    marginBottom: 2,
+    fontSize: Math.max(12, width * 0.032),
+    marginBottom: height * 0.003,
   },
   lastMessage: {
     color: '#aaa',
-    fontSize: 12,
+    fontSize: Math.max(12, width * 0.032),
     fontStyle: 'italic',
   },
   bottomActions: {
     borderTopWidth: 1,
     borderTopColor: '#3a3a3a',
-    paddingTop: 16,
+    paddingTop: height * 0.02,
   },
   actionButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: 12,
+    paddingVertical: height * 0.016,
   },
   actionText: {
-    fontSize: 16,
+    fontSize: Math.max(16, width * 0.045),
     color: '#fff',
   },
   logoutText: {
-    fontSize: 16,
+    fontSize: Math.max(16, width * 0.045),
     color: 'red',
   },
 })

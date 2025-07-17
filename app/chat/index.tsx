@@ -24,7 +24,7 @@ import { useAuth } from '@/context/AuthContext'
 import { ChatDrawerParamList } from '@/types/navigation'
 import { useConversation } from './_layout'
 
-const { width } = Dimensions.get('window')
+const { width, height } = Dimensions.get('window')
 
 interface Message {
   id: string
@@ -251,21 +251,23 @@ export default function ChatScreen() {
     <ImageBackground
       source={require('../../assets/images/background1.png')}
       style={styles.background}
+      imageStyle={{ width: '100%', height: '100%' }}
     >
       <SafeAreaView style={styles.container}>
-        {/* Top Left Logo */}
-        <View style={styles.logoTopLeftContainer}>
-          <Image
-            source={require('../../assets/images/logo.png')}
-            style={styles.logoTopLeft}
-            resizeMode="contain"
-          />
-          {/* Hamburger Menu */}
+        {/* Top Navigation Bar */}
+        <View style={styles.navBar}>
+          <View style={styles.logoNavContainer}>
+            <Image
+              source={require('../../assets/images/logo.png')}
+              style={styles.logoTopLeft}
+              resizeMode="contain"
+            />
+          </View>
           <TouchableOpacity
             onPress={() => navigation.openDrawer()}
             style={styles.iconTopRight}
           >
-            <Ionicons name="menu" size={28} color="#fff" />
+            <Ionicons name="menu" size={Math.max(24, width * 0.07)} color="#fff" />
           </TouchableOpacity>
         </View>
 
@@ -284,12 +286,13 @@ export default function ChatScreen() {
             renderItem={renderItem}
             keyExtractor={(item) => item.id}
             contentContainerStyle={styles.chat}
+            showsVerticalScrollIndicator={false}
           />
         )}
 
         {/* Input Area */}
         <View style={styles.inputContainer}>
-          <Ionicons name="happy-outline" size={24} color="#fff" />
+          <Ionicons name="happy-outline" size={Math.max(22, width * 0.06)} color="#fff" />
           <TextInput
             placeholder="Type message here..."
             placeholderTextColor="#ccc"
@@ -308,7 +311,7 @@ export default function ChatScreen() {
             ) : (
               <Ionicons
                 name="send"
-                size={24}
+                size={Math.max(22, width * 0.06)}
                 color={!inputText.trim() ? '#666' : '#00E1FF'}
               />
             )}
@@ -322,47 +325,65 @@ export default function ChatScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingBottom: height * 0.01,
   },
   background: {
     flex: 1,
     resizeMode: 'cover',
+    width: '100%',
+    height: '100%',
   },
-  logoTopLeftContainer: {
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+  navBar: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: width * 0.04,
+    paddingTop: height * 0.03,
+    paddingBottom: height * 0.01,
+    backgroundColor: 'rgba(20, 31, 57, 0.7)', // semi-transparent for contrast
+    zIndex: 10,
+  },
+  logoNavContainer: {
+    flex: 1,
+    alignItems: 'flex-start',
+    justifyContent: 'center',
   },
   logoTopLeft: {
-    width: width * 0.35,
-    height: width * 0.35,
+    width: width * 0.28,
+    height: width * 0.13,
+    marginLeft: width * 0.01,
+    marginTop: 0,
   },
   iconTopRight: {
-    paddingRight: 40,
-    paddingTop: 50,
+    paddingRight: width * 0.01,
+    paddingTop: 0,
   },
   chat: {
-    paddingHorizontal: 16,
-    paddingBottom: 80,
+    paddingHorizontal: width * 0.04,
+    paddingBottom: height * 0.13, // leave space for input
+    minHeight: height * 0.5,
   },
   botRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginVertical: 8,
+    marginVertical: height * 0.01,
+    maxWidth: '90%',
   },
   userRow: {
     alignSelf: 'flex-end',
-    marginVertical: 8,
+    marginVertical: height * 0.01,
     maxWidth: '80%',
   },
   logoSmall: {
-    width: 40,
-    height: 40,
-    marginRight: 8,
-    marginTop: 8,
+    width: width * 0.11,
+    height: width * 0.11,
+    marginRight: width * 0.02,
+    marginTop: width * 0.02,
   },
   messageBubble: {
     borderRadius: 20,
-    padding: 12,
+    paddingVertical: height * 0.015,
+    paddingHorizontal: width * 0.04,
     marginBottom: 4,
     maxWidth: width * 0.75,
   },
@@ -377,45 +398,47 @@ const styles = StyleSheet.create({
   },
   messageText: {
     color: '#fff',
-    fontSize: 15,
+    fontSize: Math.max(14, width * 0.038),
   },
   sourcesText: {
-    fontSize: 10,
+    fontSize: Math.max(9, width * 0.025),
     color: '#ccc',
-    marginLeft: 32,
+    marginLeft: width * 0.08,
     fontStyle: 'italic',
     marginTop: 2,
   },
   timeText: {
-    fontSize: 10,
+    fontSize: Math.max(9, width * 0.025),
     color: '#ccc',
-    marginLeft: 32,
+    marginLeft: width * 0.08,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 12,
+    paddingVertical: height * 0.012,
+    paddingHorizontal: width * 0.03,
     backgroundColor: '#141F39',
     position: 'absolute',
     bottom: 0,
     width: '100%',
+    minHeight: height * 0.08,
   },
   input: {
     flex: 1,
-    marginHorizontal: 10,
+    marginHorizontal: width * 0.025,
     color: '#fff',
-    fontSize: 16,
-    paddingVertical: 8,
+    fontSize: Math.max(15, width * 0.04),
+    paddingVertical: height * 0.01,
   },
   loadingHistoryContainer: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 50,
+    paddingVertical: height * 0.07,
   },
   loadingHistoryText: {
     color: '#fff',
     marginTop: 10,
-    fontSize: 16,
+    fontSize: Math.max(15, width * 0.04),
   },
 })

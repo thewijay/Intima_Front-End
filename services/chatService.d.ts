@@ -1,4 +1,5 @@
 export interface ChatResponse {
+  conversation_id: boolean
   success: boolean
   answer: string
   message_id?: string
