@@ -1,7 +1,6 @@
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-
-const API_BASE_URL = 'http://192.168.8.100:8000/api' // include http!
+import { config } from '../../config'
 
 function handleError(error: any) {
   return error.response?.data || { detail: error.message }
@@ -21,7 +20,7 @@ export interface UserProfile {
 }
 
 const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: config.API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -61,7 +60,7 @@ export const registerUser = async (
 
 export const loginUser = async (email: string, password: string) => {
   try {
-    const response = await axios.post(`${API_BASE_URL}/token/`, {
+    const response = await axios.post(config.TOKEN_URL, {
       email,
       password,
     })

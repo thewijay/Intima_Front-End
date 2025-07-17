@@ -23,8 +23,17 @@ export interface ConversationHistoryResponse {
   error?: string
 }
 
+export interface ConnectionTestResponse {
+  success: boolean
+  message?: string
+  error?: string
+  health?: any
+  details?: string
+}
+
 export interface Conversation {
   id: string
+  conversation_id?: string // Frontend conversation ID from backend
   title: string
   created_at: string
   last_updated: string
@@ -66,15 +75,20 @@ declare const ChatService: {
     }
   ): Promise<ChatResponse>
   healthCheck(): Promise<any>
-  
+  testConnection(): Promise<ConnectionTestResponse>
+
   // New history methods
   getConversationList(): Promise<ConversationListResponse>
-  getConversationHistory(conversationId: string): Promise<ConversationHistoryResponse>
+  getConversationHistory(
+    conversationId: string
+  ): Promise<ConversationHistoryResponse>
   generateConversationId(): string
   generateMessageId(): string
   formatMessageForFrontend(backendMessage: BackendMessage): FrontendMessage
   formatAiMessageForFrontend(backendMessage: BackendMessage): FrontendMessage
-  formatConversationHistory(backendMessages: BackendMessage[]): FrontendMessage[]
+  formatConversationHistory(
+    backendMessages: BackendMessage[]
+  ): FrontendMessage[]
 }
 
 export default ChatService
