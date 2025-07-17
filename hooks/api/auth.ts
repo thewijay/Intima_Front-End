@@ -1,7 +1,6 @@
 import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-
-const API_BASE_URL = 'http://192.168.8.100:8000/api' // include http!
+import { config } from '../../config'
 
 function handleError(error: any) {
   return error.response?.data || { detail: error.message }
