@@ -12,6 +12,9 @@ import {
   Platform,
   SafeAreaView,
   ActivityIndicator,
+  Dimensions,
+  useWindowDimensions,
+  ScrollView,
 } from 'react-native'
 import RNPickerSelect from 'react-native-picker-select'
 import { useRouter } from 'expo-router'
@@ -19,6 +22,20 @@ import * as SecureStore from 'expo-secure-store'
 import { Ionicons } from '@expo/vector-icons' // for dropdown icon
 import { updateUserProfile } from '../hooks/api/auth'
 import Screen1Data from './screen1'
+
+// Get screen dimensions for responsive scaling
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Responsive scaling functions
+const scale = (size: number) => {
+  const baseWidth = 375; // iPhone X width as base
+  return (screenWidth / baseWidth) * size;
+};
+
+const verticalScale = (size: number) => {
+  const baseHeight = 812; // iPhone X height as base
+  return (screenHeight / baseHeight) * size;
+};
 
 type Screen1Data = {
   firstName: string
@@ -42,6 +59,7 @@ export default function Screen2() {
   })
 
   const [screen1Data, setScreen1Data] = useState<Screen1Data | null>(null)
+  const { width, height } = useWindowDimensions();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -141,132 +159,153 @@ export default function Screen2() {
             {
               paddingTop: insets.top,
               paddingBottom: insets.bottom,
+              paddingHorizontal: scale(30),
             },
           ]}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? verticalScale(60) : 0}
         >
-          <Text style={styles.title}>Create Account</Text>
-
-          <View style={styles.formBox}>
-            {/* Weight */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Weight (kg)</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.Weight}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, Weight: text })
-                }
-                placeholderTextColor="#bbb"
-                keyboardType="numeric"
-              />
-            </View>
-
-            {/* Marital Status Dropdown */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Marital Status</Text>
-              <View style={styles.dropdownWrapper}>
-                <RNPickerSelect
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, Marital_Status: value })
-                  }
-                  placeholder={{
-                    label: 'Select marital status...',
-                    value: null,
-                    color: '#bbb',
-                  }}
-                  items={[
-                    { label: 'Single', value: 'Single' },
-                    { label: 'Married', value: 'Married' },
-                    { label: 'Divorced', value: 'Divorced' },
-                    { label: 'Prefer not to say', value: 'Prefer not to say' },
-                  ]}
-                  style={{
-                    inputIOS: styles.dropdownInput,
-                    inputAndroid: styles.dropdownInput,
-                    iconContainer: styles.iconContainer,
-                  }}
-                  Icon={() => (
-                    <Ionicons name="chevron-down" size={20} color="#bbb" />
-                  )}
-                  value={formData.Marital_Status}
-                />
-              </View>
-            </View>
-
-            {/* Sexual Activity Level Dropdown */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Sexual Activity Level</Text>
-              <View style={styles.dropdownWrapper}>
-                <RNPickerSelect
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, Sexual_Activity_Level: value })
-                  }
-                  placeholder={{
-                    label: 'Select sexual activity level...',
-                    value: null,
-                    color: '#bbb',
-                  }}
-                  items={[
-                    { label: 'Low', value: 'Low' },
-                    { label: 'Moderate', value: 'Moderate' },
-                    { label: 'High', value: 'High' },
-                    { label: 'Prefer not to say', value: 'Prefer not to say' },
-                  ]}
-                  style={{
-                    inputIOS: styles.dropdownInput,
-                    inputAndroid: styles.dropdownInput,
-                    iconContainer: styles.iconContainer,
-                  }}
-                  Icon={() => (
-                    <Ionicons name="chevron-down" size={20} color="#bbb" />
-                  )}
-                  value={formData.Sexual_Activity_Level}
-                />
-              </View>
-            </View>
-
-            {/* Menstrual Cycle Details */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Menstrual Cycle Details</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.Menstrual_Cycle_Details}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, Menstrual_Cycle_Details: text })
-                }
-                placeholderTextColor="#bbb"
-              />
-            </View>
-
-            {/* Medical Conditions */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Medical Conditions</Text>
-              <TextInput
-                style={styles.input}
-                value={formData.Medical_Conditions}
-                onChangeText={(text) =>
-                  setFormData({ ...formData, Medical_Conditions: text })
-                }
-                placeholderTextColor="#bbb"
-              />
-            </View>
-
-            <Text style={styles.stepText}>Step 2/2</Text>
-          </View>
-
-          <TouchableOpacity
-            style={styles.button}
-            onPress={handleSave}
-            disabled={loading}
+          <ScrollView
+            contentContainerStyle={{
+              flexGrow: 1,
+              justifyContent: 'flex-start',
+            }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
-            {loading ? (
-              <ActivityIndicator size="small" color="#fff" />
-            ) : (
-              <Text style={styles.buttonText}>
-                You’re all set! Let’s get started
-              </Text>
-            )}
-          </TouchableOpacity>
+            <Text style={[styles.title, { fontSize: scale(28), marginTop: verticalScale(20), marginBottom: verticalScale(12) }]}>Create Account</Text>
+
+            <View style={[styles.formBox, { padding: scale(20), borderRadius: scale(20), marginBottom: verticalScale(10) }]}>
+              {/* Weight */}
+              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
+                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Weight (kg)</Text>
+                <TextInput
+                  style={[styles.input, { paddingVertical: verticalScale(6), fontSize: scale(16) }]}
+                  value={formData.Weight}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, Weight: text })
+                  }
+                  placeholderTextColor="#bbb"
+                  keyboardType="numeric"
+                />
+              </View>
+
+              {/* Marital Status Dropdown */}
+              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
+                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Marital Status</Text>
+                <View style={[styles.dropdownWrapper, { paddingVertical: verticalScale(6) }]}>
+                  <RNPickerSelect
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, Marital_Status: value })
+                    }
+                    placeholder={{
+                      label: 'Select marital status...',
+                      value: null,
+                      color: '#bbb',
+                    }}
+                    items={[
+                      { label: 'Single', value: 'Single' },
+                      { label: 'Married', value: 'Married' },
+                      { label: 'Divorced', value: 'Divorced' },
+                      { label: 'Prefer not to say', value: 'Prefer not to say' },
+                    ]}
+                    style={{
+                      inputIOS: [styles.dropdownInput, { fontSize: scale(16), paddingRight: scale(30) }],
+                      inputAndroid: [styles.dropdownInput, { fontSize: scale(16), paddingRight: scale(30) }],
+                      iconContainer: [styles.iconContainer, { top: verticalScale(10), right: scale(10) }],
+                    }}
+                    Icon={() => (
+                      <Ionicons name="chevron-down" size={scale(20)} color="#bbb" />
+                    )}
+                    value={formData.Marital_Status}
+                  />
+                </View>
+              </View>
+
+              {/* Sexual Activity Level Dropdown */}
+              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
+                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Sexual Activity Level</Text>
+                <View style={[styles.dropdownWrapper, { paddingVertical: verticalScale(6) }]}>
+                  <RNPickerSelect
+                    onValueChange={(value) =>
+                      setFormData({ ...formData, Sexual_Activity_Level: value })
+                    }
+                    placeholder={{
+                      label: 'Select sexual activity level...',
+                      value: null,
+                      color: '#bbb',
+                    }}
+                    items={[
+                      { label: 'Low', value: 'Low' },
+                      { label: 'Moderate', value: 'Moderate' },
+                      { label: 'High', value: 'High' },
+                      { label: 'Prefer not to say', value: 'Prefer not to say' },
+                    ]}
+                    style={{
+                      inputIOS: [styles.dropdownInput, { fontSize: scale(16), paddingRight: scale(30) }],
+                      inputAndroid: [styles.dropdownInput, { fontSize: scale(16), paddingRight: scale(30) }],
+                      iconContainer: [styles.iconContainer, { top: verticalScale(10), right: scale(10) }],
+                    }}
+                    Icon={() => (
+                      <Ionicons name="chevron-down" size={scale(20)} color="#bbb" />
+                    )}
+                    value={formData.Sexual_Activity_Level}
+                  />
+                </View>
+              </View>
+
+              {/* Menstrual Cycle Details */}
+              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
+                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Menstrual Cycle Details</Text>
+                <TextInput
+                  style={[styles.input, { paddingVertical: verticalScale(6), fontSize: scale(16) }]}
+                  value={formData.Menstrual_Cycle_Details}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, Menstrual_Cycle_Details: text })
+                  }
+                  placeholderTextColor="#bbb"
+                />
+              </View>
+
+              {/* Medical Conditions */}
+              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
+                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Medical Conditions</Text>
+                <TextInput
+                  style={[styles.input, { paddingVertical: verticalScale(6), fontSize: scale(16) }]}
+                  value={formData.Medical_Conditions}
+                  onChangeText={(text) =>
+                    setFormData({ ...formData, Medical_Conditions: text })
+                  }
+                  placeholderTextColor="#bbb"
+                />
+              </View>
+
+              <Text style={[styles.stepText, { fontSize: scale(12) }]}>Step 2/2</Text>
+            </View>
+
+            <View style={{ height: verticalScale(20) }} />
+
+            <TouchableOpacity
+              style={[styles.button, {
+                paddingVertical: verticalScale(12),
+                paddingHorizontal: scale(40),
+                borderRadius: scale(30),
+                marginTop: verticalScale(10),
+                marginBottom: verticalScale(20),
+                minWidth: scale(280),
+              }]}
+              onPress={handleSave}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color="#fff" />
+              ) : (
+                <Text style={[styles.buttonText, { fontSize: scale(14) }]}>
+                  You're all set! Let's get started
+                </Text>
+              )}
+            </TouchableOpacity>
+            <View style={{ height: verticalScale(10) }} />
+          </ScrollView>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </ImageBackground>
@@ -279,67 +318,45 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 30,
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
   },
   title: {
-    fontSize: 28,
     fontWeight: 'bold',
     color: '#fff',
     textAlign: 'center',
-    marginTop: 10,
-    marginBottom: 12,
   },
   formBox: {
     backgroundColor: 'rgba(0, 0, 40, 0.5)',
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 10,
   },
-  inputGroup: {
-    marginBottom: 20,
-  },
+  inputGroup: {},
   label: {
     color: '#ccc',
-    fontSize: 14,
-    marginBottom: 6,
   },
   input: {
     borderBottomWidth: 2,
     borderBottomColor: '#a855f7',
     color: '#fff',
-    paddingVertical: 6,
   },
   dropdownWrapper: {
     borderBottomWidth: 2,
     borderBottomColor: '#a855f7',
-    paddingVertical: 6,
   },
   dropdownInput: {
     color: '#fff',
-    paddingRight: 30, // space for icon
   },
   iconContainer: {
-    top: 10,
-    right: 10,
     position: 'absolute',
   },
   stepText: {
     color: '#ccc',
     textAlign: 'center',
     marginTop: 0,
-    fontSize: 12,
   },
   button: {
     backgroundColor: 'transparent',
     borderColor: '#0ff',
     borderWidth: 1,
-    borderRadius: 30,
-    paddingVertical: 12,
-    paddingHorizontal: 40,
     alignSelf: 'center',
-    marginTop: 10,
-    marginBottom: 20,
   },
   buttonText: {
     color: '#fff',

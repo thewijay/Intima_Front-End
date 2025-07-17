@@ -2,6 +2,7 @@ import axios from 'axios'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { config } from '../../config'
 
+
 function handleError(error: any) {
   return error.response?.data || { detail: error.message }
 }
