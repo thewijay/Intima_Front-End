@@ -10,11 +10,27 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
+  useWindowDimensions,
 } from 'react-native'
 import { useRouter } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { fetchUserProfile } from '../hooks/api/auth'
 import AsyncStorage from '@react-native-async-storage/async-storage'
+
+// Get screen dimensions for responsive scaling
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Responsive scaling functions
+const scale = (size: number) => {
+  const baseWidth = 375; // iPhone X width as base
+  return (screenWidth / baseWidth) * size;
+};
+
+const verticalScale = (size: number) => {
+  const baseHeight = 812; // iPhone X height as base
+  return (screenHeight / baseHeight) * size;
+};
 
 export default function LoginScreen() {
   const router = useRouter()
@@ -22,6 +38,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('')
   const { login } = useAuth()
   const [loading, setLoading] = useState(false)
+  const { width, height } = useWindowDimensions();
 
   const handleLogin = async () => {
     const trimmedEmail = email.trim()
@@ -74,12 +91,20 @@ export default function LoginScreen() {
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
+        style={[styles.container, { paddingHorizontal: scale(30) }]}
       >
-        <Text style={styles.title}>Welcome</Text>
+        <Text style={[styles.title, { 
+          fontSize: scale(32), 
+          marginBottom: verticalScale(40) 
+        }]}>Welcome</Text>
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, {
+            borderRadius: scale(8),
+            padding: scale(14),
+            marginBottom: verticalScale(20),
+            fontSize: scale(16),
+          }]}
           placeholder="Email"
           placeholderTextColor="#ccc"
           value={email}
@@ -88,7 +113,12 @@ export default function LoginScreen() {
         />
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, {
+            borderRadius: scale(8),
+            padding: scale(14),
+            marginBottom: verticalScale(20),
+            fontSize: scale(16),
+          }]}
           placeholder="Password"
           placeholderTextColor="#ccc"
           secureTextEntry
@@ -97,17 +127,26 @@ export default function LoginScreen() {
         />
 
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, {
+            padding: verticalScale(15),
+            borderRadius: scale(30),
+            marginBottom: verticalScale(10),
+            paddingHorizontal: scale(50),
+            minWidth: scale(200),
+          }]}
           onPress={handleLogin}
           disabled={loading}
         >
-          <Text style={styles.buttonText}>
+          <Text style={[styles.buttonText, { fontSize: scale(16) }]}>
             {loading ? 'Logging in...' : 'Login'}
           </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleForgotPassword}>
-          <Text style={styles.linkTextForgot}>Forgot Password?</Text>
+          <Text style={[styles.linkTextForgot, { 
+            fontSize: scale(14), 
+            marginBottom: verticalScale(15) 
+          }]}>Forgot Password?</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -120,7 +159,7 @@ export default function LoginScreen() {
             }
           }}
         >
-          <Text style={styles.linkTextSignup}>
+          <Text style={[styles.linkTextSignup, { fontSize: scale(14) }]}>
             Don't have an account? Sign up
           </Text>
         </TouchableOpacity>
@@ -135,51 +174,36 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 30,
     justifyContent: 'center',
   },
   title: {
-    fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 40,
     textAlign: 'center',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 20,
     color: '#fff',
   },
   button: {
     backgroundColor: '#00ACC1',
-    padding: 15,
-    borderRadius: 30,
     alignItems: 'center',
-    marginBottom: 10,
-    paddingHorizontal: 50,
     alignSelf: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 16,
   },
   linkTextSignup: {
     color: '#ddd',
     textAlign: 'center',
-    fontSize: 14,
   },
   linkTextForgot: {
     color: '#178CA4',
     textAlign: 'center',
-    fontSize: 14,
-    marginBottom: 15,
   },
   successText: {
     color: '#4CAF50',
-    fontSize: 16,
     textAlign: 'center',
     marginTop: 10,
     fontWeight: '600',

@@ -7,14 +7,30 @@ import {
   ImageBackground,
   Image,
   ActivityIndicator,
+  Dimensions,
+  useWindowDimensions,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 
+// Get screen dimensions for responsive scaling
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Responsive scaling functions
+const scale = (size: number) => {
+  const baseWidth = 375; // iPhone X width as base
+  return (screenWidth / baseWidth) * size;
+};
+
+const verticalScale = (size: number) => {
+  const baseHeight = 812; // iPhone X height as base
+  return (screenHeight / baseHeight) * size;
+};
 
 export default function WelcomeScreen() {
     const router = useRouter();
     const { token, loading } = useAuth();
+    const { width, height } = useWindowDimensions();
 
     useEffect(() => {
       if (!loading) {
@@ -39,22 +55,32 @@ export default function WelcomeScreen() {
       resizeMode="cover"
     >
 
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingVertical: verticalScale(60) }]}>
       <View style={styles.logoContainer}>
         <Image
-          source={require("../assets/images/logo.png")} style={styles.logo} />
-        <View style={styles.overlay}>
-            <Text style={styles.subtitle}>
+          source={require("../assets/images/logo.png")} 
+          style={[styles.logo, { 
+            marginTop: verticalScale(30),
+            width: scale(300),
+            height: scale(300)
+          }]} 
+        />
+        <View style={[styles.overlay, { top: height * 0.46 }]}>
+            <Text style={[styles.subtitle, { fontSize: scale(11) }]}>
               AI-Based Sexual and Wellness Healthcare Assistant
             </Text>
         </View>
       </View>
 
       <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, {
+            paddingVertical: verticalScale(12),
+            paddingHorizontal: scale(40),
+            borderRadius: scale(30),
+          }]}
           onPress={() => router.push('/login')}
         >
-        <Text style={styles.buttonText}>Get Started</Text>
+        <Text style={[styles.buttonText, { fontSize: scale(16) }]}>Get Started</Text>
       </TouchableOpacity>
       
     </View>
@@ -75,37 +101,35 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 60,
   },
   logoContainer: {
     flex: 1,
     alignItems: 'center',
     position: 'relative',
+    justifyContent: 'center',
   },
   logo: {
-    marginTop: 30,
-    width: 300,
-    height: 300,
     resizeMode: 'contain',
   },
   subtitle: {
-    fontSize: 11,
     color: 'white',
     textAlign: 'center',
+    paddingHorizontal: scale(20),
+    lineHeight: scale(16),
   },
   overlay: {
     position: 'absolute',
-    top: '46%',
+    width: '100%',
+    paddingHorizontal: scale(20),
   },
   button: {
     backgroundColor: '#00ACC1', // Cyan shade
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 30,
+    marginBottom: verticalScale(40),
+    minWidth: scale(200),
+    alignItems: 'center',
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
     fontWeight: '600',
   },
 });

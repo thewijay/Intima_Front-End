@@ -10,8 +10,24 @@ import {
   ImageBackground,
   KeyboardAvoidingView,
   Platform,
+  Dimensions,
+  useWindowDimensions,
 } from 'react-native'
 import { useRouter } from 'expo-router'
+
+// Get screen dimensions for responsive scaling
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Responsive scaling functions
+const scale = (size: number) => {
+  const baseWidth = 375; // iPhone X width as base
+  return (screenWidth / baseWidth) * size;
+};
+
+const verticalScale = (size: number) => {
+  const baseHeight = 812; // iPhone X height as base
+  return (screenHeight / baseHeight) * size;
+};
 
 export default function SignupScreen() {
   const router = useRouter()
@@ -19,6 +35,7 @@ export default function SignupScreen() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [passwordError, setPasswordError] = useState('')
+  const { width, height } = useWindowDimensions();
 
   const handleSignup = async () => {
     if (!email || !password || !confirmPassword) {
@@ -54,12 +71,17 @@ export default function SignupScreen() {
     >
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={styles.container}
+        style={[styles.container, { paddingHorizontal: scale(30) }]}
       >
-        <Text style={styles.title}>Create Account</Text>
+        <Text style={[styles.title, { fontSize: scale(32), marginBottom: verticalScale(40) }]}>Create Account</Text>
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, {
+            borderRadius: scale(8),
+            padding: scale(14),
+            marginBottom: verticalScale(20),
+            fontSize: scale(16),
+          }]}
           placeholder="Email"
           placeholderTextColor="#ccc"
           value={email}
@@ -68,7 +90,12 @@ export default function SignupScreen() {
         />
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, {
+            borderRadius: scale(8),
+            padding: scale(14),
+            marginBottom: verticalScale(20),
+            fontSize: scale(16),
+          }]}
           placeholder="Password"
           placeholderTextColor="#ccc"
           secureTextEntry
@@ -77,11 +104,16 @@ export default function SignupScreen() {
         />
 
         {passwordError ? (
-          <Text style={styles.errorText}>{passwordError}</Text>
+          <Text style={[styles.errorText, { fontSize: scale(12), marginBottom: verticalScale(10) }]}>{passwordError}</Text>
         ) : null}
 
         <TextInput
-          style={styles.input}
+          style={[styles.input, {
+            borderRadius: scale(8),
+            padding: scale(14),
+            marginBottom: verticalScale(20),
+            fontSize: scale(16),
+          }]}
           placeholder="Confirm Password"
           placeholderTextColor="#ccc"
           secureTextEntry
@@ -90,15 +122,21 @@ export default function SignupScreen() {
         />
 
         <TouchableOpacity
-          style={styles.button}
+          style={[styles.button, {
+            padding: verticalScale(15),
+            borderRadius: scale(30),
+            marginBottom: verticalScale(10),
+            paddingHorizontal: scale(40),
+            minWidth: scale(200),
+          }]}
           onPress={handleSignup}
         >
-          <Text style={styles.buttonText}>Sign Up</Text>
+          <Text style={[styles.buttonText, { fontSize: scale(16) }]}>Sign Up</Text>
         </TouchableOpacity>
 
         {/* Add back navigation to login */}
         <TouchableOpacity onPress={() => router.push('/login')}>
-          <Text style={styles.linkText}>Already have an account? Login</Text>
+          <Text style={[styles.linkText, { fontSize: scale(14), marginTop: verticalScale(15) }]}>Already have an account? Login</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </ImageBackground>
@@ -111,47 +149,32 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 30,
     justifyContent: 'center',
   },
   title: {
-    fontSize: 32,
     fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 40,
     textAlign: 'center',
   },
   input: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    padding: 14,
-    marginBottom: 20,
     color: '#fff',
   },
   button: {
     backgroundColor: '#00ACC1',
-    padding: 15,
-    borderRadius: 30,
     alignItems: 'center',
-    marginBottom: 10,
-    paddingHorizontal: 40,
     alignSelf: 'center',
   },
   buttonText: {
     color: '#fff',
     fontWeight: '600',
-    fontSize: 16,
   },
   linkText: {
     color: '#ddd',
     textAlign: 'center',
-    fontSize: 14,
-    marginTop: 15,
   },
   errorText: {
     color: '#ff0000',
-    fontSize: 12,
-    marginBottom: 10,
     textAlign: 'center',
   },
 })
