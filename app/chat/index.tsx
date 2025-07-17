@@ -14,6 +14,7 @@ import {
   SafeAreaView,
   Dimensions,
   ActivityIndicator,
+  Alert,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import ChatService from '../../services/chatService'
@@ -21,6 +22,7 @@ import { ChatResponse } from '@/services/chatService'
 import { useRouter } from 'expo-router'
 import { useAuth } from '@/context/AuthContext'
 import { ChatDrawerParamList } from '@/types/navigation'
+import { useConversation } from './_layout'
 
 const { width } = Dimensions.get('window')
 
@@ -36,6 +38,12 @@ export default function ChatScreen() {
   const { token } = useAuth()
   const router = useRouter()
   const navigation = useNavigation<DrawerNavigationProp<ChatDrawerParamList>>()
+  const {
+    currentConversationId,
+    setCurrentConversationId,
+    loadConversations,
+    markConversationAsJustCreated,
+  } = useConversation()
 
   useEffect(() => {
     if (!token) {
@@ -46,19 +54,80 @@ export default function ChatScreen() {
   const [messages, setMessages] = useState<Message[]>([])
   const [inputText, setInputText] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
-
-  const conversationId = useRef<string>(
-    `conv_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
-  )
+  const [isLoadingHistory, setIsLoadingHistory] = useState<boolean>(false)
 
   const flatListRef = useRef<FlatList>(null)
+
+  // Handle token expiration
+  const handleTokenExpiration = () => {
+    Alert.alert(
+      'Session Expired',
+      'Your login session has expired. Please log in again to continue.',
+      [
+        {
+          text: 'Log In',
+          onPress: () => {
+            router.replace('/')
+          },
+        },
+      ],
+      { cancelable: false }
+    )
+  }
+
+  // Load conversation history when conversation changes
+  useEffect(() => {
+    if (currentConversationId) {
+      loadConversationHistory(currentConversationId)
+    } else {
+      setMessages([]) // Clear messages for new conversation
+    }
+  }, [currentConversationId])
 
   useEffect(() => {
     flatListRef.current?.scrollToEnd({ animated: true })
   }, [messages])
 
+  const loadConversationHistory = async (conversationId: string) => {
+    setIsLoadingHistory(true)
+    try {
+      const response = await ChatService.getConversationHistory(conversationId)
+
+      if (response.success && response.messages) {
+        const formattedMessages = ChatService.formatConversationHistory(
+          response.messages
+        )
+        setMessages(formattedMessages)
+      } else {
+        // Check if it's a token expiration error
+        if (
+          response.error?.includes('Token expired') ||
+          response.error?.includes('please log in again')
+        ) {
+          handleTokenExpiration()
+          return
+        }
+
+        // If conversation doesn't exist or has no messages, start fresh
+        setMessages([])
+      }
+    } catch (error) {
+      console.error('Error loading conversation history:', error)
+      // On error, start with empty messages
+      setMessages([])
+    } finally {
+      setIsLoadingHistory(false)
+    }
+  }
+
   const sendMessage = async () => {
     if (!inputText.trim() || isLoading) return
+
+    // Generate conversation ID if needed, but don't set it in state yet
+    let activeConversationId = currentConversationId
+    if (!activeConversationId) {
+      activeConversationId = ChatService.generateConversationId()
+    }
 
     const userMessage: Message = {
       id: `user_${Date.now()}`,
@@ -79,14 +148,24 @@ export default function ChatScreen() {
       const response: ChatResponse = await ChatService.sendMessage(
         currentQuestion,
         {
-          conversationId: conversationId.current,
-          messageId: `msg_${Date.now()}`,
+          conversationId: activeConversationId,
+          messageId: ChatService.generateMessageId(),
           model: 'gpt-4o-mini',
           limit: 3,
         }
       )
 
-      if (response.success) {
+      // Handle both successful responses and "No relevant information found" cases
+      if (response.answer) {
+        // Check if this is a new conversation
+        const wasNewConversation = !currentConversationId
+
+        // Set the conversation ID from the backend response (only if we don't have one)
+        if (!currentConversationId && response.conversation_id) {
+          setCurrentConversationId(response.conversation_id)
+          markConversationAsJustCreated() // Mark as just created to prevent clearing
+        }
+
         const aiMessage: Message = {
           id: response.message_id || `ai_${Date.now()}`,
           text: response.answer,
@@ -99,7 +178,19 @@ export default function ChatScreen() {
         }
 
         setMessages((prev) => [...prev, aiMessage])
+
+        // For new conversations, refresh the list after a short delay to allow backend processing
+        // For existing conversations, refresh immediately
+        if (wasNewConversation) {
+          // Give the backend time to process and save the conversation
+          setTimeout(() => {
+            loadConversations()
+          }, 1000)
+        } else {
+          loadConversations()
+        }
       } else {
+        // If no answer provided, treat as error
         throw new Error(
           response.message || response.error || 'Failed to get AI response'
         )
@@ -179,13 +270,22 @@ export default function ChatScreen() {
         </View>
 
         {/* Chat Messages */}
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id}
-          contentContainerStyle={styles.chat}
-        />
+        {isLoadingHistory ? (
+          <View style={styles.loadingHistoryContainer}>
+            <ActivityIndicator size="large" color="#00E1FF" />
+            <Text style={styles.loadingHistoryText}>
+              Loading conversation...
+            </Text>
+          </View>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            renderItem={renderItem}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.chat}
+          />
+        )}
 
         {/* Input Area */}
         <View style={styles.inputContainer}>
@@ -306,5 +406,16 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     paddingVertical: 8,
+  },
+  loadingHistoryContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 50,
+  },
+  loadingHistoryText: {
+    color: '#fff',
+    marginTop: 10,
+    fontSize: 16,
   },
 })
