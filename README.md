@@ -1,50 +1,90 @@
-# Welcome to your Expo app 👋
+# Intima Front-End
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+**Intima** is an AI-powered healthcare assistant designed to offer confidential and personalized support for sexual, reproductive, and wellness concerns. This frontend application enables users to discuss sensitive health issues and receive accurate, evidence-based responses tailored for both men and women.
 
-## Get started
+---
 
-1. Install dependencies
+## 🎓 Project Origin
 
-   ```bash
-   npm install
-   ```
+This project was developed as part of the **Capstone Project** module in the 2nd Year 2nd Semester at the [Sabaragamuwa University of Sri Lanka](https://sab.ac.lk/).  
+It reflects our commitment to building innovative AI-powered digital solutions that address real-world challenges in healthcare and wellness.
 
-2. Start the app
+---
 
-   ```bash
-    npx expo start
-   ```
+## 🚀 Features
 
-In the output, you'll find options to open the app in a
+- Conversational AI interface for seamless user interaction.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+- Personalized responses based on user input.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Secure and confidential handling of sensitive health information.
 
-## Get a fresh project
+- Responsive design optimized for various devices.
 
-When you're ready, run:
+## 🛠️ Tech Stack
+
+- **React Native:** For building native mobile applications.
+
+- **Expo:** To streamline development and testing processes.
+
+- **TypeScript:** Ensuring type safety and improved code maintainability.
+
+- **Custom Hooks & Components:** Modular and reusable code structures.
+
+## 📁 Project Structure
+
+├── app/ # Main application components and screens
+├── assets/ # Images, fonts, and other static assets
+├── components/ # Reusable UI components
+├── constants/ # Application-wide constants
+├── hooks/ # Custom React hooks
+├── scripts/ # Utility scripts
+├── app.json # Expo configuration
+├── package.json # Project metadata and dependencies
+├── tsconfig.json # TypeScript configuration
+└── README.md # Project documentation
+
+## 🧑‍💻 Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or above)
+
+- npm or yarn package manager
+
+- Expo CLI
+
+## Installation
+
+### 1.Clone the repository:
 
 ```bash
-npm run reset-project
+git clone https://github.com/thewijay/Intima_Front-End.git
+cd Intima_Front-End
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2.Install dependencies:
 
-## Learn more
+```bash
+npm install
+# or
+yarn install
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+Start the development server:
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npx expo start
+```
 
-## Join the community
+This will launch the Expo development tools in your browser. You can then run the app on an emulator or a physical device using the Expo Go app.
 
-Join our community of developers creating universal apps.
+---
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+## 🎓 Academic Acknowledgment
+
+This project is a proud outcome of our **Capstone Project** module at the  
+🌱 **[Sabaragamuwa University of Sri Lanka](https://sab.ac.lk/)** – where creativity meets real-world impact.
+
+We thank our mentors and the Faculty of Computing for the continued support and academic inspiration.
+
