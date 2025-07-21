@@ -7,19 +7,79 @@ import {
   ImageBackground,
   Image,
   ActivityIndicator,
-  Animated,
-  Easing,
+  Dimensions,
+  useWindowDimensions,
+  Animated as RNAnimated,
 } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, Easing } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../context/AuthContext';
 
+// Get screen dimensions for responsive scaling
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+// Responsive scaling functions
+const scale = (size: number) => {
+  const baseWidth = 375; // iPhone X width as base
+  return (screenWidth / baseWidth) * size;
+};
+
+const verticalScale = (size: number) => {
+  const baseHeight = 812; // iPhone X height as base
+  return (screenHeight / baseHeight) * size;
+};
+
+// AnimatedLogo: Heartbeat (scale) + Wave (rotation) animation for logo_only.png
+function AnimatedLogo({ size }: { size: number }) {
+  const scale = useSharedValue(1);
+  const rotate = useSharedValue(0);
+
+  useEffect(() => {
+    // Heartbeat: scale up and down (slower)
+    scale.value = withRepeat(
+      withSequence(
+        withTiming(1.18, { duration: 700, easing: Easing.inOut(Easing.ease) }),
+        withTiming(1, { duration: 700, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+    // Wave: rotate left and right (slower)
+    rotate.value = withRepeat(
+      withSequence(
+        withTiming(-10, { duration: 800, easing: Easing.inOut(Easing.ease) }),
+        withTiming(10, { duration: 1600, easing: Easing.inOut(Easing.ease) }),
+        withTiming(0, { duration: 800, easing: Easing.inOut(Easing.ease) })
+      ),
+      -1,
+      true
+    );
+  }, []);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [
+      { scale: scale.value },
+      { rotate: `${rotate.value}deg` },
+    ],
+  }));
+
+  return (
+    <Animated.View style={animatedStyle}>
+      <Image
+        source={require('../assets/images/logo_only.png')}
+        style={{ width: size, height: size, resizeMode: 'contain' }}
+      />
+    </Animated.View>
+  );
+}
 
 export default function WelcomeScreen() {
     const router = useRouter();
     const { token, loading } = useAuth();
-    const fadeAnim = useRef(new Animated.Value(0)).current;
-    const pulseAnim = useRef(new Animated.Value(1)).current;
-    const glowAnim = useRef(new Animated.Value(0)).current;
+    const { width, height } = useWindowDimensions();
+
+    // Animation values
+    const buttonScale = useRef(new RNAnimated.Value(1)).current;
 
     useEffect(() => {
       if (!loading) {
@@ -27,57 +87,28 @@ export default function WelcomeScreen() {
           router.replace('/chat');
         }
       }
-      // Start fade-in
-      Animated.timing(fadeAnim, {
-        toValue: 1,
-        duration: 1000,
-        useNativeDriver: true,
-      }).start();
-      // Start pulse and glow loop
-      Animated.loop(
-        Animated.parallel([
-          Animated.sequence([
-            Animated.timing(pulseAnim, {
-              toValue: 1.08,
-              duration: 900,
-              easing: Easing.inOut(Easing.ease),
-              useNativeDriver: true,
-            }),
-            Animated.timing(pulseAnim, {
-              toValue: 1,
-              duration: 900,
-              easing: Easing.inOut(Easing.ease),
-              useNativeDriver: true,
-            }),
-          ]),
-          Animated.sequence([
-            Animated.timing(glowAnim, {
-              toValue: 1,
-              duration: 900,
-              easing: Easing.inOut(Easing.ease),
-              useNativeDriver: false,
-            }),
-            Animated.timing(glowAnim, {
-              toValue: 0,
-              duration: 900,
-              easing: Easing.inOut(Easing.ease),
-              useNativeDriver: false,
-            }),
-          ]),
-        ])
-      ).start();
     }, [loading, token]);
 
-    // Interpolate shadow for glow effect
-    const shadowGlow = glowAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 18],
-    });
-    const shadowOpacity = glowAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0.2, 0.7],
-    });
-
+    // Handle button press with smooth transition
+    const handleGetStarted = () => {
+      // Animate button press
+      RNAnimated.sequence([
+        RNAnimated.timing(buttonScale, {
+          toValue: 0.95,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+        RNAnimated.timing(buttonScale, {
+          toValue: 1,
+          duration: 100,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        // Navigate to login after animation completes
+        router.push('/login');
+      });
+    };
+  
     if (loading) {
       return (
         <View style={styles.center}>
@@ -92,40 +123,29 @@ export default function WelcomeScreen() {
       style={styles.background}
       resizeMode="cover"
     >
-
-    <View style={styles.container}>
-      <View style={styles.logoRow}>
-        <Animated.View
-          style={[
-            {
-              opacity: fadeAnim,
-              transform: [{ scale: pulseAnim }],
-              shadowColor: '#00E1FF',
-              shadowOffset: { width: 0, height: 0 },
-              shadowRadius: shadowGlow,
-              shadowOpacity: shadowOpacity,
-              elevation: shadowGlow, // Android shadow
-            },
-          ]}
-        >
-          <Image
-            source={require("../assets/images/logo_only.png")}
-            style={styles.logoIcon}
-          />
-        </Animated.View>
-        <Text style={styles.logoText}>Intima</Text>
+      <View style={[styles.container, { paddingVertical: verticalScale(60) }]}> 
+        {/* Logo and App Name on one line */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: verticalScale(30), marginBottom: verticalScale(20) }}>
+          <AnimatedLogo size={scale(50)} />
+          <Text style={[styles.appName, { fontSize: scale(32), marginBottom: 0 }]}>Intima</Text>
+        </View>
+        <View style={styles.textContainer}>
+          <Text style={[styles.subtitle, { fontSize: scale(11) }]}>AI-Based Sexual and Wellness Healthcare Assistant</Text>
+        </View>
+        <RNAnimated.View style={{ transform: [{ scale: buttonScale }] }}>
+          <TouchableOpacity
+            style={[styles.button, {
+              paddingVertical: verticalScale(12),
+              paddingHorizontal: scale(40),
+              borderRadius: scale(30),
+            }]}
+            onPress={handleGetStarted}
+            activeOpacity={0.8}
+          >
+            <Text style={[styles.buttonText, { fontSize: scale(16) }]}>Get Started</Text>
+          </TouchableOpacity>
+        </RNAnimated.View>
       </View>
-      <Text style={styles.subtitle}>
-        AI-Based Sexual and Wellness Healthcare Assistant
-      </Text>
-      <View style={{ flex: 1 }} />
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => router.push('/login')}
-      >
-        <Text style={styles.buttonText}>Get Started</Text>
-      </TouchableOpacity>
-    </View>
     </ImageBackground>
   );
 }
@@ -143,41 +163,33 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: 60,
   },
-  logoRow: {
-    flexDirection: 'row',
+  textContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 100,
-    marginBottom: 24,
+    paddingHorizontal: scale(20),
+    marginTop: verticalScale(20),
   },
-  logoIcon: {
-    width: 90,
-    height: 90,
-    marginRight: 1,
+  logo: {
     resizeMode: 'contain',
   },
-  logoText: {
-    fontSize: 48,
-    fontWeight: 'bold',
-    color: '#fff',
-    letterSpacing: 1,
-  },
-  subtitle: {
-    fontSize: 11,
+  appName: {
     color: 'white',
     textAlign: 'center',
+    fontWeight: 'bold',
+  },
+  subtitle: {
+    color: 'white',
+    textAlign: 'center',
+    lineHeight: scale(16),
   },
   button: {
     backgroundColor: '#00ACC1', // Cyan shade
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 30,
+    marginBottom: verticalScale(40),
+    minWidth: scale(200),
+    alignItems: 'center',
   },
   buttonText: {
     color: 'white',
-    fontSize: 16,
     fontWeight: '600',
   },
 });
