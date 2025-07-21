@@ -1,5 +1,4 @@
 import React, { useState, useRef, useEffect } from 'react'
-import Markdown from 'react-native-markdown-display'
 import { useNavigation } from '@react-navigation/native'
 import { DrawerNavigationProp } from '@react-navigation/drawer'
 import {
