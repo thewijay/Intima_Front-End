@@ -16,6 +16,7 @@ import {
   Alert,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
+import Markdown from 'react-native-markdown-display'
 import ChatService from '../../services/chatService'
 import { ChatResponse } from '@/services/chatService'
 import { useRouter } from 'expo-router'
@@ -24,6 +25,60 @@ import { ChatDrawerParamList } from '@/types/navigation'
 import { useConversation } from './_layout'
 
 const { width, height } = Dimensions.get('window')
+
+// Markdown styles for bot messages
+const markdownStyles = {
+  body: {
+    color: '#fff',
+    fontSize: Math.max(14, width * 0.038),
+  },
+  heading1: {
+    color: '#fff',
+    fontSize: Math.max(18, width * 0.045),
+    fontWeight: 'bold' as const,
+  },
+  heading2: {
+    color: '#fff',
+    fontSize: Math.max(16, width * 0.042),
+    fontWeight: 'bold' as const,
+  },
+  strong: {
+    color: '#fff',
+    fontWeight: 'bold' as const,
+  },
+  em: {
+    color: '#fff',
+    fontStyle: 'italic' as const,
+  },
+  list_item: {
+    color: '#fff',
+    fontSize: Math.max(14, width * 0.038),
+  },
+  bullet_list: {
+    color: '#fff',
+  },
+  ordered_list: {
+    color: '#fff',
+  },
+  code_inline: {
+    color: '#ff6b6b',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 4,
+    paddingVertical: 2,
+    borderRadius: 3,
+  },
+  code_block: {
+    color: '#ff6b6b',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    padding: 8,
+    borderRadius: 5,
+    marginVertical: 5,
+  },
+  link: {
+    color: '#4dabf7',
+    textDecorationLine: 'underline' as const,
+  },
+}
 
 interface Message {
   id: string
@@ -300,7 +355,7 @@ export default function ChatScreen() {
         />
         <View>
           <View style={[styles.messageBubble, styles.botBubble]}>
-            <Text style={styles.messageText}>{item.text}</Text>
+            <Markdown style={markdownStyles}>{item.text}</Markdown>
           </View>
           {/* {item.sources && item.sources.length > 0 && (
             <Text style={styles.sourcesText}>

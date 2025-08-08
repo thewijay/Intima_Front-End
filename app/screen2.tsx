@@ -24,18 +24,18 @@ import { updateUserProfile } from '../hooks/api/auth'
 import Screen1Data from './screen1'
 
 // Get screen dimensions for responsive scaling
-const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window')
 
 // Responsive scaling functions
 const scale = (size: number) => {
-  const baseWidth = 375; // iPhone X width as base
-  return (screenWidth / baseWidth) * size;
-};
+  const baseWidth = 375 // iPhone X width as base
+  return (screenWidth / baseWidth) * size
+}
 
 const verticalScale = (size: number) => {
-  const baseHeight = 812; // iPhone X height as base
-  return (screenHeight / baseHeight) * size;
-};
+  const baseHeight = 812 // iPhone X height as base
+  return (screenHeight / baseHeight) * size
+}
 
 type Screen1Data = {
   firstName: string
@@ -59,7 +59,7 @@ export default function Screen2() {
   })
 
   const [screen1Data, setScreen1Data] = useState<Screen1Data | null>(null)
-  const { width, height } = useWindowDimensions();
+  const { width, height } = useWindowDimensions()
 
   useEffect(() => {
     const fetchData = async () => {
@@ -128,7 +128,9 @@ export default function Screen2() {
           maritalStatusMap[Marital_Status as keyof typeof maritalStatusMap] ||
           '',
         sexually_active: Sexual_Activity_Level,
-        menstrual_cycle: formData.Menstrual_Cycle_Details,
+        // Only include menstrual cycle for non-male users
+        menstrual_cycle:
+          screen1Data.gender === 'male' ? '' : formData.Menstrual_Cycle_Details,
         medical_conditions: formData.Medical_Conditions,
       }
 
@@ -172,14 +174,46 @@ export default function Screen2() {
             keyboardShouldPersistTaps="handled"
             showsVerticalScrollIndicator={false}
           >
-            <Text style={[styles.title, { fontSize: scale(28), marginTop: verticalScale(20), marginBottom: verticalScale(12) }]}>Create Account</Text>
+            <Text
+              style={[
+                styles.title,
+                {
+                  fontSize: scale(28),
+                  marginTop: verticalScale(20),
+                  marginBottom: verticalScale(12),
+                },
+              ]}
+            >
+              Create Account
+            </Text>
 
-            <View style={[styles.formBox, { padding: scale(20), borderRadius: scale(20), marginBottom: verticalScale(10) }]}>
+            <View
+              style={[
+                styles.formBox,
+                {
+                  padding: scale(20),
+                  borderRadius: scale(20),
+                  marginBottom: verticalScale(10),
+                },
+              ]}
+            >
               {/* Weight */}
-              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
-                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Weight (kg)</Text>
+              <View
+                style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}
+              >
+                <Text
+                  style={[
+                    styles.label,
+                    { fontSize: scale(14), marginBottom: verticalScale(6) },
+                  ]}
+                >
+                  Weight (kg)
+                </Text>
                 <TextInput
-                  style={[styles.input, { paddingVertical: verticalScale(6), fontSize: scale(16) }]}
+                  style={[
+                    styles.input,
+                    { paddingVertical: verticalScale(6), fontSize: scale(16) },
+                  ]}
                   value={formData.Weight}
                   onChangeText={(text) =>
                     setFormData({ ...formData, Weight: text })
@@ -190,9 +224,23 @@ export default function Screen2() {
               </View>
 
               {/* Marital Status Dropdown */}
-              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
-                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Marital Status</Text>
-                <View style={[styles.dropdownWrapper, { paddingVertical: verticalScale(6) }]}>
+              <View
+                style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}
+              >
+                <Text
+                  style={[
+                    styles.label,
+                    { fontSize: scale(14), marginBottom: verticalScale(6) },
+                  ]}
+                >
+                  Marital Status
+                </Text>
+                <View
+                  style={[
+                    styles.dropdownWrapper,
+                    { paddingVertical: verticalScale(6) },
+                  ]}
+                >
                   <RNPickerSelect
                     onValueChange={(value) =>
                       setFormData({ ...formData, Marital_Status: value })
@@ -206,15 +254,31 @@ export default function Screen2() {
                       { label: 'Single', value: 'Single' },
                       { label: 'Married', value: 'Married' },
                       { label: 'Divorced', value: 'Divorced' },
-                      { label: 'Prefer not to say', value: 'Prefer not to say' },
+                      {
+                        label: 'Prefer not to say',
+                        value: 'Prefer not to say',
+                      },
                     ]}
                     style={{
-                      inputIOS: [styles.dropdownInput, { fontSize: scale(16), paddingRight: scale(30) }],
-                      inputAndroid: [styles.dropdownInput, { fontSize: scale(16), paddingRight: scale(30) }],
-                      iconContainer: [styles.iconContainer, { top: verticalScale(10), right: scale(10) }],
+                      inputIOS: [
+                        styles.dropdownInput,
+                        { fontSize: scale(16), paddingRight: scale(30) },
+                      ],
+                      inputAndroid: [
+                        styles.dropdownInput,
+                        { fontSize: scale(16), paddingRight: scale(30) },
+                      ],
+                      iconContainer: [
+                        styles.iconContainer,
+                        { top: verticalScale(10), right: scale(10) },
+                      ],
                     }}
                     Icon={() => (
-                      <Ionicons name="chevron-down" size={scale(20)} color="#bbb" />
+                      <Ionicons
+                        name="chevron-down"
+                        size={scale(20)}
+                        color="#bbb"
+                      />
                     )}
                     value={formData.Marital_Status}
                   />
@@ -222,9 +286,23 @@ export default function Screen2() {
               </View>
 
               {/* Sexual Activity Level Dropdown */}
-              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
-                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Sexual Activity Level</Text>
-                <View style={[styles.dropdownWrapper, { paddingVertical: verticalScale(6) }]}>
+              <View
+                style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}
+              >
+                <Text
+                  style={[
+                    styles.label,
+                    { fontSize: scale(14), marginBottom: verticalScale(6) },
+                  ]}
+                >
+                  Sexual Activity Level
+                </Text>
+                <View
+                  style={[
+                    styles.dropdownWrapper,
+                    { paddingVertical: verticalScale(6) },
+                  ]}
+                >
                   <RNPickerSelect
                     onValueChange={(value) =>
                       setFormData({ ...formData, Sexual_Activity_Level: value })
@@ -238,39 +316,90 @@ export default function Screen2() {
                       { label: 'Low', value: 'Low' },
                       { label: 'Moderate', value: 'Moderate' },
                       { label: 'High', value: 'High' },
-                      { label: 'Prefer not to say', value: 'Prefer not to say' },
+                      {
+                        label: 'Prefer not to say',
+                        value: 'Prefer not to say',
+                      },
                     ]}
                     style={{
-                      inputIOS: [styles.dropdownInput, { fontSize: scale(16), paddingRight: scale(30) }],
-                      inputAndroid: [styles.dropdownInput, { fontSize: scale(16), paddingRight: scale(30) }],
-                      iconContainer: [styles.iconContainer, { top: verticalScale(10), right: scale(10) }],
+                      inputIOS: [
+                        styles.dropdownInput,
+                        { fontSize: scale(16), paddingRight: scale(30) },
+                      ],
+                      inputAndroid: [
+                        styles.dropdownInput,
+                        { fontSize: scale(16), paddingRight: scale(30) },
+                      ],
+                      iconContainer: [
+                        styles.iconContainer,
+                        { top: verticalScale(10), right: scale(10) },
+                      ],
                     }}
                     Icon={() => (
-                      <Ionicons name="chevron-down" size={scale(20)} color="#bbb" />
+                      <Ionicons
+                        name="chevron-down"
+                        size={scale(20)}
+                        color="#bbb"
+                      />
                     )}
                     value={formData.Sexual_Activity_Level}
                   />
                 </View>
               </View>
 
-              {/* Menstrual Cycle Details */}
-              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
-                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Menstrual Cycle Details</Text>
-                <TextInput
-                  style={[styles.input, { paddingVertical: verticalScale(6), fontSize: scale(16) }]}
-                  value={formData.Menstrual_Cycle_Details}
-                  onChangeText={(text) =>
-                    setFormData({ ...formData, Menstrual_Cycle_Details: text })
-                  }
-                  placeholderTextColor="#bbb"
-                />
-              </View>
+              {/* Menstrual Cycle Details - Only show for female and other genders */}
+              {screen1Data && screen1Data.gender !== 'male' && (
+                <View
+                  style={[
+                    styles.inputGroup,
+                    { marginBottom: verticalScale(20) },
+                  ]}
+                >
+                  <Text
+                    style={[
+                      styles.label,
+                      { fontSize: scale(14), marginBottom: verticalScale(6) },
+                    ]}
+                  >
+                    Menstrual Cycle Details
+                  </Text>
+                  <TextInput
+                    style={[
+                      styles.input,
+                      {
+                        paddingVertical: verticalScale(6),
+                        fontSize: scale(16),
+                      },
+                    ]}
+                    value={formData.Menstrual_Cycle_Details}
+                    onChangeText={(text) =>
+                      setFormData({
+                        ...formData,
+                        Menstrual_Cycle_Details: text,
+                      })
+                    }
+                    placeholderTextColor="#bbb"
+                  />
+                </View>
+              )}
 
               {/* Medical Conditions */}
-              <View style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}>
-                <Text style={[styles.label, { fontSize: scale(14), marginBottom: verticalScale(6) }]}>Medical Conditions</Text>
+              <View
+                style={[styles.inputGroup, { marginBottom: verticalScale(20) }]}
+              >
+                <Text
+                  style={[
+                    styles.label,
+                    { fontSize: scale(14), marginBottom: verticalScale(6) },
+                  ]}
+                >
+                  Medical Conditions
+                </Text>
                 <TextInput
-                  style={[styles.input, { paddingVertical: verticalScale(6), fontSize: scale(16) }]}
+                  style={[
+                    styles.input,
+                    { paddingVertical: verticalScale(6), fontSize: scale(16) },
+                  ]}
                   value={formData.Medical_Conditions}
                   onChangeText={(text) =>
                     setFormData({ ...formData, Medical_Conditions: text })
@@ -279,20 +408,25 @@ export default function Screen2() {
                 />
               </View>
 
-              <Text style={[styles.stepText, { fontSize: scale(12) }]}>Step 2/2</Text>
+              <Text style={[styles.stepText, { fontSize: scale(12) }]}>
+                Step 2/2
+              </Text>
             </View>
 
             <View style={{ height: verticalScale(20) }} />
 
             <TouchableOpacity
-              style={[styles.button, {
-                paddingVertical: verticalScale(12),
-                paddingHorizontal: scale(40),
-                borderRadius: scale(30),
-                marginTop: verticalScale(10),
-                marginBottom: verticalScale(20),
-                minWidth: scale(280),
-              }]}
+              style={[
+                styles.button,
+                {
+                  paddingVertical: verticalScale(12),
+                  paddingHorizontal: scale(40),
+                  borderRadius: scale(30),
+                  marginTop: verticalScale(10),
+                  marginBottom: verticalScale(20),
+                  minWidth: scale(280),
+                },
+              ]}
               onPress={handleSave}
               disabled={loading}
             >
