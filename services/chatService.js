@@ -14,7 +14,6 @@ class ChatService {
         token = await SecureStore.getItemAsync('authToken')
       }
 
-
       return token
     } catch (error) {
       console.error('Error getting auth token:', error)
@@ -45,12 +44,9 @@ class ChatService {
         }),
       })
 
-      console.log('Chat response status:', response.status)
-
       let data
       try {
         const responseText = await response.text()
-        console.log('Raw chat response:', responseText.substring(0, 500))
         data = JSON.parse(responseText)
       } catch (parseError) {
         console.error('Failed to parse chat JSON response:', parseError)
@@ -59,14 +55,11 @@ class ChatService {
         )
       }
 
-      console.log('Parsed chat response:', data)
-
       if (!response.ok) {
         throw new Error(data.message || 'Server error')
       }
 
       // The AI service can return success:false with valid responses like "No relevant information found"
-      // We should still return the data so the UI can handle it appropriately
       return data // Return even if success is false
     } catch (error) {
       console.error('Chat API error:', error)
@@ -79,10 +72,8 @@ class ChatService {
 
   async healthCheck() {
     try {
-      console.log('Performing health check to:', config.HEALTH_URL)
       const response = await fetch(config.HEALTH_URL)
       const data = await response.json()
-      console.log('Health check response:', data)
       return data
     } catch (error) {
       console.error('Health check error:', error)
@@ -107,7 +98,6 @@ class ChatService {
    * Handle token expiration by clearing stored token
    */
   async handleTokenExpiration() {
-    console.log('Token expired, clearing stored token...')
     try {
       if (Platform.OS === 'web') {
         await AsyncStorage.removeItem('authToken')
@@ -124,11 +114,6 @@ class ChatService {
    */
   async testConnection() {
     try {
-      console.log('Testing connection to backend...')
-      console.log('Base URL:', config.BASE_URL)
-      console.log('AI URL:', config.AI_BASE_URL)
-      console.log('API URL:', config.API_BASE_URL)
-
       const healthResult = await this.healthCheck()
       return {
         success: true,
@@ -160,8 +145,6 @@ class ChatService {
         throw new Error('Authentication required')
       }
 
-      console.log('Fetching conversation list from:', config.CONVERSATIONS_URL)
-
       const response = await fetch(config.CONVERSATIONS_URL, {
         method: 'GET',
         headers: {
@@ -170,13 +153,9 @@ class ChatService {
         },
       })
 
-      console.log('Conversation list response status:', response.status)
-      console.log('Response headers:', response.headers)
-
       let data
       try {
         const responseText = await response.text()
-        console.log('Raw response text:', responseText.substring(0, 500))
         data = JSON.parse(responseText)
       } catch (parseError) {
         console.error('Failed to parse JSON response:', parseError)
@@ -184,8 +163,6 @@ class ChatService {
           `Invalid response format from server (${response.status})`
         )
       }
-
-      console.log('Parsed conversation list response data:', data)
 
       if (!response.ok) {
         // Check if token is expired
@@ -229,12 +206,6 @@ class ChatService {
         throw new Error('Conversation ID is required')
       }
 
-      console.log('Fetching conversation history for:', conversationId)
-      console.log(
-        'Using URL:',
-        `${config.CHAT_HISTORY_URL}?conversation_id=${conversationId}`
-      )
-
       const response = await fetch(
         `${config.CHAT_HISTORY_URL}?conversation_id=${conversationId}`,
         {
@@ -246,13 +217,9 @@ class ChatService {
         }
       )
 
-      console.log('Response status:', response.status)
-      console.log('Response ok:', response.ok)
-
       let data
       try {
         const responseText = await response.text()
-        console.log('Raw history response:', responseText.substring(0, 500))
         data = JSON.parse(responseText)
       } catch (parseError) {
         console.error('Failed to parse history JSON response:', parseError)
@@ -261,20 +228,17 @@ class ChatService {
         )
       }
 
-      console.log('Parsed history response data:', data)
-
       if (!response.ok) {
         // Handle 404 specifically - conversation not found yet
         if (response.status === 404) {
-          console.log('Conversation not found in database yet, returning empty history')
           return {
             success: true,
             conversation_id: conversationId,
             conversation_title: '',
-            messages: []
+            messages: [],
           }
         }
-        
+
         throw new Error(
           data.message ||
             `HTTP ${response.status}: Failed to fetch conversation history`
@@ -354,17 +318,17 @@ class ChatService {
     const formattedMessages = []
 
     backendMessages.forEach((msg) => {
-      // Add user message
-      formattedMessages.push(this.formatMessageForFrontend(msg))
+      // Only add user message if there's actually a question (not empty for automatic messages like welcome)
+      if (msg.question && msg.question.trim() !== '') {
+        formattedMessages.push(this.formatMessageForFrontend(msg))
+      }
 
-      // Add AI response
+      // Add AI response (this should always exist)
       formattedMessages.push(this.formatAiMessageForFrontend(msg))
     })
 
     return formattedMessages
   }
-
-
 
   /**
    * Get conversation history with retry logic for newly created conversations
@@ -376,38 +340,89 @@ class ChatService {
     for (let attempt = 0; attempt <= retries; attempt++) {
       try {
         const result = await this.getConversationHistory(conversationId)
-        
+
         // If we get a successful response or it's not a 404, return it
         if (result.success || !result.error?.includes('404')) {
           return result
         }
-        
+
         // If it's a 404 and we have retries left, wait and try again
         if (attempt < retries) {
-          console.log(`Conversation not found, retrying in ${(attempt + 1) * 500}ms... (${attempt + 1}/${retries})`)
-          await new Promise(resolve => setTimeout(resolve, (attempt + 1) * 500))
+          console.log(
+            `Conversation not found, retrying in ${(attempt + 1) * 500}ms... (${
+              attempt + 1
+            }/${retries})`
+          )
+          await new Promise((resolve) =>
+            setTimeout(resolve, (attempt + 1) * 500)
+          )
           continue
         }
-        
+
         // Last attempt failed, return the result
         return result
-        
       } catch (error) {
-        console.error(`Conversation history attempt ${attempt + 1} failed:`, error)
+        console.error(
+          `Conversation history attempt ${attempt + 1} failed:`,
+          error
+        )
         if (attempt === retries) {
           return {
             success: false,
             error: error.message,
-            messages: []
+            messages: [],
           }
         }
         // Wait before retrying
-        await new Promise(resolve => setTimeout(resolve, (attempt + 1) * 500))
+        await new Promise((resolve) => setTimeout(resolve, (attempt + 1) * 500))
       }
     }
   }
 
+  /**
+   * Get welcome message from the server
+   * @returns {Object} Welcome message data
+   */
+  async getWelcomeMessage() {
+    try {
+      const token = await this.getAuthToken()
 
+      if (!token) {
+        throw new Error('Authentication required')
+      }
+
+      const response = await fetch(config.WELCOME_URL, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      if (!response.ok) {
+        if (response.status === 401) {
+          throw new Error('Token expired, please log in again')
+        }
+        throw new Error(`HTTP error! status: ${response.status}`)
+      }
+
+      if (!response.headers.get('content-type')?.includes('application/json')) {
+        throw new Error(
+          `Server returned non-JSON response. Status: ${response.status}`
+        )
+      }
+
+      const data = await response.json()
+
+      return data
+    } catch (error) {
+      console.error('Get welcome message error:', error)
+      return {
+        success: false,
+        error: error.message || 'Unknown error',
+      }
+    }
+  }
 }
 
 export default new ChatService()

@@ -32,6 +32,19 @@ export interface ConnectionTestResponse {
   details?: string
 }
 
+export interface WelcomeStatusResponse {
+  success: boolean
+  needs_welcome: boolean
+  welcome_message?: string
+  error?: string
+}
+
+export interface WelcomeUpdateResponse {
+  success: boolean
+  message?: string
+  error?: string
+}
+
 export interface Conversation {
   id: string
   conversation_id?: string // Frontend conversation ID from backend
@@ -90,6 +103,10 @@ declare const ChatService: {
   formatConversationHistory(
     backendMessages: BackendMessage[]
   ): FrontendMessage[]
+
+  // Welcome message methods
+  checkWelcomeStatus(): Promise<WelcomeStatusResponse>
+  markWelcomeAsSent(): Promise<WelcomeUpdateResponse>
 }
 
 export default ChatService

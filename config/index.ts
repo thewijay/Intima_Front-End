@@ -25,6 +25,7 @@ export const config = {
   HEALTH_URL: `${BASE_URL}/ai/health/`,
   CONVERSATIONS_URL: `${BASE_URL}/ai/chat/conversations/`,
   CHAT_HISTORY_URL: `${BASE_URL}/ai/chat/history/`,
+  WELCOME_URL: `${BASE_URL}/ai/welcome/`,
 }
 
 // Validation function to ensure required environment variables are set

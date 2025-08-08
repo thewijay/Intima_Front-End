@@ -56,6 +56,13 @@ export default function ChatScreen() {
     }
   }, [token])
 
+  // Check for welcome message when component mounts
+  useEffect(() => {
+    if (token) {
+      checkForWelcomeMessage()
+    }
+  }, [token])
+
   const [messages, setMessages] = useState<Message[]>([])
   const [inputText, setInputText] = useState<string>('')
   const [isLoading, setIsLoading] = useState<boolean>(false)
@@ -78,6 +85,54 @@ export default function ChatScreen() {
       ],
       { cancelable: false }
     )
+  }
+
+  // Check for and display welcome message if needed
+  const checkForWelcomeMessage = async () => {
+    try {
+      // Check if the method exists first
+      if (typeof (ChatService as any).getWelcomeMessage !== 'function') {
+        return
+      }
+
+      const response = await (ChatService as any).getWelcomeMessage()
+
+      if (
+        response.success &&
+        response.needs_welcome &&
+        response.welcome_message
+      ) {
+        // Create welcome message object
+        const welcomeMessage: Message = {
+          id: response.message_id || `welcome_${Date.now()}`,
+          text: response.welcome_message,
+          sender: 'bot',
+          time: new Date(response.timestamp).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit',
+          }),
+          sources: [],
+        }
+
+        // Set the welcome message in chat
+        setMessages([welcomeMessage])
+
+        // Set the conversation ID from the response
+        if (
+          response.conversation_id &&
+          typeof response.conversation_id === 'string'
+        ) {
+          setCurrentConversationId(response.conversation_id)
+          markConversationAsJustCreated()
+        }
+
+        // Refresh conversations list to show the new welcome conversation
+        loadConversations()
+      }
+    } catch (error) {
+      console.error('Error checking for welcome message:', error)
+      // Don't show error to user - just continue without welcome message
+    }
   }
 
   // Load conversation history when conversation changes
@@ -113,13 +168,26 @@ export default function ChatScreen() {
           return
         }
 
-        // If conversation doesn't exist or has no messages, start fresh
-        setMessages([])
+        // If conversation doesn't exist or has no messages, only clear if we don't already have messages
+        // This prevents clearing welcome messages that were just added
+        setMessages((currentMessages) => {
+          // If we already have messages (like a welcome message), keep them
+          if (currentMessages.length > 0) {
+            return currentMessages
+          }
+          // Otherwise, start fresh
+          return []
+        })
       }
     } catch (error) {
       console.error('Error loading conversation history:', error)
-      // On error, start with empty messages
-      setMessages([])
+      // On error, only clear messages if we don't already have any
+      setMessages((currentMessages) => {
+        if (currentMessages.length > 0) {
+          return currentMessages
+        }
+        return []
+      })
     } finally {
       setIsLoadingHistory(false)
     }
@@ -166,7 +234,11 @@ export default function ChatScreen() {
         const wasNewConversation = !currentConversationId
 
         // Set the conversation ID from the backend response (only if we don't have one)
-        if (!currentConversationId && response.conversation_id) {
+        if (
+          !currentConversationId &&
+          response.conversation_id &&
+          typeof response.conversation_id === 'string'
+        ) {
           setCurrentConversationId(response.conversation_id)
           markConversationAsJustCreated() // Mark as just created to prevent clearing
         }
@@ -357,7 +429,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: width * 0.06,
-    paddingTop: '24',
+    paddingTop: 24,
     width: '100%',
     height: '100%',
   },
