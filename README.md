@@ -32,7 +32,7 @@ It reflects our commitment to building innovative AI-powered digital solutions t
 - **Custom Hooks & Components:** Modular and reusable code structures.
 
 ## 📁 Project Structure
-
+```bash
 ├── app/ # Main application components and screens
 ├── assets/ # Images, fonts, and other static assets
 ├── components/ # Reusable UI components
@@ -43,6 +43,7 @@ It reflects our commitment to building innovative AI-powered digital solutions t
 ├── package.json # Project metadata and dependencies
 ├── tsconfig.json # TypeScript configuration
 └── README.md # Project documentation
+```
 
 ## 🧑‍💻 Getting Started
 
@@ -56,14 +57,14 @@ It reflects our commitment to building innovative AI-powered digital solutions t
 
 ## Installation
 
-### 1.Clone the repository:
+### 1. Clone the repository:
 
 ```bash
 git clone https://github.com/thewijay/Intima_Front-End.git
 cd Intima_Front-End
 ```
 
-### 2.Install dependencies:
+### 2. Install dependencies:
 
 ```bash
 npm install
@@ -78,6 +79,12 @@ npx expo start
 ```
 
 This will launch the Expo development tools in your browser. You can then run the app on an emulator or a physical device using the Expo Go app.
+
+---
+
+## 📱 Backend Repository
+The backend of Intima is available here:  
+[Intima Front-End](https://github.com/thewijay/Intima_Back-End)
 
 ---
 
