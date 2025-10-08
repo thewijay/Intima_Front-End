@@ -84,7 +84,7 @@ This will launch the Expo development tools in your browser. You can then run th
 
 ## 📱 Backend Repository
 The backend of Intima is available here:  
-[Intima Front-End](https://github.com/thewijay/Intima_Back-End)
+[Intima Back-End](https://github.com/thewijay/Intima_Back-End)
 
 ---
 
